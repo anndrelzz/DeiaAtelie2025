@@ -14,23 +14,15 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-content">
-                <!-- Logo -->
-                <div class="logo">
-                    <h1>DeiaAtelie</h1>
-                </div>
-
-                <!-- Navigation Links -->
                 <div class="nav-links">
                     <a href="#home" class="nav-link active">Início</a>
                     <a href="#about" class="nav-link">Sobre</a>
                     <a href="#contact" class="nav-link">Contato</a>
                 </div>
 
-                <!-- Action Buttons -->
                 <div class="nav-actions">
                     <button id="login-btn" class="btn btn-primary">
                         Entrar
@@ -47,7 +39,6 @@
     </nav>
 
     <main>
-        <!-- Hero Section -->
         <section id="home" class="hero-section">
             <div class="container">
                 <div class="hero-content">
@@ -63,7 +54,6 @@
                     </button>
                 </div>
 
-                <!-- Features Grid -->
                 <div class="features-grid">
                     <div class="feature-card" style="animation-delay: 0s">
                         <div class="feature-icon">
@@ -113,7 +103,6 @@
             </div>
         </section>
 
-        <!-- About Section -->
         <section id="about" class="about-section">
             <div class="container">
                 <div class="section-header">
@@ -125,7 +114,6 @@
                 </div>
 
                 <div class="about-grid">
-                    <!-- Left Content -->
                     <div class="about-content">
                         <div class="about-text">
                             <h3>A Arte da Costura Personalizada</h3>
@@ -193,7 +181,6 @@
                         </div>
                     </div>
 
-                    <!-- Right Content - Services -->
                     <div class="services-card">
                         <h3>Nossos Serviços</h3>
                         
@@ -223,7 +210,6 @@
             </div>
         </section>
 
-        <!-- Contact Section -->
         <section id="contact" class="contact-section">
             <div class="container">
                 <div class="section-header">
@@ -235,11 +221,10 @@
                 </div>
 
                 <div class="contact-grid">
-                    <!-- Contact Info -->
-                    <div class="contact-info">
-                        <h3>Como nos encontrar</h3>
+                    <div class="contact-form-card">
+                        <h3>Nossas Informações de Contato</h3>
                         
-                        <div class="contact-items">
+                        <div class="contact-info-horizontal">
                             <div class="contact-item">
                                 <div class="contact-icon">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -256,21 +241,7 @@
                             <div class="contact-item">
                                 <div class="contact-icon">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                                        <polyline points="22,6 12,13 2,6"/>
-                                    </svg>
-                                </div>
-                                <div class="contact-content">
-                                    <h4>E-mail</h4>
-                                    <p>contato@deiaatelie.com</p>
-                                    <small>Resposta em até 24 horas</small>
-                                </div>
-                            </div>
-
-                            <div class="contact-item">
-                                <div class="contact-icon">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <pin d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
                                         <circle cx="12" cy="10" r="3"/>
                                     </svg>
                                 </div>
@@ -302,54 +273,11 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Contact Form -->
-                    <div class="contact-form-card">
-                        <h3>Agende seu Conserto</h3>
-                        
-                        <form class="contact-form" id="contact-form">
-                            <div class="form-group">
-                                <label for="name">Nome completo</label>
-                                <input type="text" id="name" name="name" placeholder="Seu nome completo" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="email">E-mail</label>
-                                <input type="email" id="email" name="email" placeholder="seu@email.com" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="phone">Telefone</label>
-                                <input type="tel" id="phone" name="phone" placeholder="(11) 99999-9999">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="service">Tipo de serviço</label>
-                                <select id="service" name="service" required>
-                                    <option value="">Selecione o serviço desejado</option>
-                                    <option value="roupa-sob-medida">Roupa sob medida</option>
-                                    <option value="ajustes-reformas">Ajustes e reformas</option>
-                                    <option value="pecas-especiais">Peças especiais</option>
-                                    <option value="consultoria">Consultoria de estilo</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="message">Mensagem</label>
-                                <textarea id="message" name="message" rows="4" placeholder="Conte-nos sobre seu projeto..." required></textarea>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary btn-lg btn-full">
-                                Enviar Mensagem
-                            </button>
-                        </form>
-                    </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -361,11 +289,9 @@
         </div>
     </footer>
 
-    <!-- Login Modal -->
     <div id="login-modal" class="modal">
         <div class="modal-backdrop"></div>
         <div class="modal-content">
-            <!-- Header -->
             <div class="modal-header">
                 <h2 id="modal-title">Entrar na sua conta</h2>
                 <button id="modal-close" class="modal-close">
@@ -376,7 +302,6 @@
                 </button>
             </div>
 
-            <!-- Form -->
             <form id="login-form" class="modal-form">
                 <div id="name-field" class="form-group" style="display: none;">
                     <label for="modal-name">Nome completo</label>
@@ -416,7 +341,6 @@
                 </button>
             </form>
 
-            <!-- Toggle -->
             <div class="modal-toggle">
                 <p>
                     <span id="toggle-text">Não tem uma conta? </span>

@@ -182,7 +182,7 @@ body {
 
 .nav-content {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     height: 4rem;
 }
@@ -200,6 +200,7 @@ body {
 .nav-links {
     display: none;
     gap: 1rem;
+    margin: 0 1rem;
 }
 
 @media (min-width: 768px) {
@@ -227,6 +228,7 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
+    margin: 0 1rem;
 }
 
 /* Buttons */
@@ -517,7 +519,7 @@ body {
 
 @media (min-width: 1024px) {
     .contact-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
     }
 }
 
@@ -892,4 +894,12 @@ body {
     font-size: 0.875rem;
     color: var(--muted-foreground);
     margin-top: 0.25rem;
+}
+
+/* Novo estilo para o layout horizontal dos itens de contato */
+.contact-info-horizontal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center; /* CENTRALIZA OS ITENS HORIZONTALMENTE */
 }
