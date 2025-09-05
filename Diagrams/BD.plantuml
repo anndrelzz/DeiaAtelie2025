@@ -1,0 +1,61 @@
+@startuml ERD_DeiaAtelie_PT_Organizado
+' Define o estilo para as tabelas e linhas
+skinparam linetype ortho ' Linhas retas
+skinparam entity {
+  BorderColor #505050
+  BorderThickness 2
+  BackgroundColor #EEEEEE
+  ArrowColor #333333
+}
+
+' --- Tabela: Usuarios ---
+entity Usuarios {
+  + id: SERIAL <<Chave Primária>>
+  --
+  nome: VARCHAR(255)
+  email: VARCHAR(255) <<Único>>
+  senha_hash: VARCHAR(255)
+  telefone: VARCHAR(20)
+  tipo_usuario: VARCHAR(20) <<'cliente' | 'administrador'>>
+  data_criacao: TIMESTAMP <<Padrão: Data/Hora Atual>>
+}
+
+' --- Tabela: Servicos ---
+entity Servicos {
+  + id: SERIAL <<Chave Primária>>
+  --
+  nome: VARCHAR(255) <<Único>>
+  descricao: TEXT
+  preco: DECIMAL(10, 2)
+  duracao_estimada_minutos: INTEGER
+  ativo: BOOLEAN <<Padrão: Verdadeiro>>
+}
+
+' --- Tabela: Agendamentos ---
+entity Agendamentos {
+  + id: SERIAL <<Chave Primária>>
+  --
+  id_usuario: INTEGER <<Chave Estrangeira>>
+  id_servico: INTEGER <<Chave Estrangeira>>
+  data_hora_inicio: TIMESTAMP <<Único>>
+  data_hora_fim: TIMESTAMP
+  status: VARCHAR(50) <<'pendente' | 'confirmado' | 'cancelado' | 'concluído'>>
+  observacoes: TEXT <<Pode ser Nulo>>
+  data_agendamento: TIMESTAMP <<Padrão: Data/Hora Atual>>
+}
+
+' --- Relacionamentos (Posicionamento para melhor leitura) ---
+
+' Posicionamento das tabelas
+Usuarios --right--> Agendamentos
+Servicos --down--> Agendamentos
+
+' Cardinalidade e Direção das Relações
+Usuarios "1" -- "N" Agendamentos : tem >
+Servicos "1" -- "N" Agendamentos : contém >
+
+' Conectores de Chave Estrangeira
+Agendamentos::id_usuario --|> Usuarios::id
+Agendamentos::id_servico --|> Servicos::id
+
+@enduml

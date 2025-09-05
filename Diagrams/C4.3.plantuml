@@ -1,0 +1,62 @@
+@startuml ComponentDeiaAtelieBackend
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Diagrama de Componentes - API de Backend do Deia Ateliê (Node.js)
+
+' ==== Containers Externos ====
+left to right direction
+
+Container(webCliente, "Aplicação Web Cliente", "React", "Interface para clientes")
+Container(webAdmin, "Aplicação Web Admin", "React", "Interface administrativa")
+ContainerDb(db, "Banco de Dados", "PostgreSQL", "Armazena todos os dados")
+
+' ==== Container da API ====
+Container_Boundary(apiBackend, "API Backend (Node.js/Express)") {
+    ' --- Grupo de Autenticação ---
+    Component(authController, "AuthController", "Controller", "Autenticação")
+    Component(userService, "UserService", "Service", "Gestão de usuários")
+    
+    ' --- Grupo de Serviços ---
+    Component(serviceController, "ServiceController", "Controller", "Serviços")
+    Component(serviceService, "ServiceService", "Service", "Gestão de serviços")
+    
+    ' --- Grupo de Agendamentos ---
+    Component(appointmentController, "AppointmentController", "Controller", "Agendamentos")
+    Component(appointmentService, "AppointmentService", "Service", "Gestão de agenda")
+    
+    ' --- Relações Internas ---
+    authController --> userService
+    serviceController --> serviceService
+    appointmentController --> appointmentService
+    appointmentService --> serviceService
+    appointmentService --> userService
+}
+
+' ==== Relações Externas ====
+webCliente --> authController : "Login/Registro"
+webCliente --> serviceController : "Lista serviços"
+webCliente --> appointmentController : "Agendamentos"
+webCliente --> userService : "Perfil"
+
+webAdmin --> authController : "Login Admin"
+webAdmin --> userService : "Gerencia clientes"
+webAdmin --> serviceService : "CRUD serviços"
+webAdmin --> appointmentService : "Todos agendamentos"
+
+' ==== Conexões com Banco ====
+userService --> db : "Usuários"
+serviceService --> db : "Serviços"
+appointmentService --> db : "Agendamentos"
+
+' ==== Notas e Legenda ====
+legend right
+  <b>Legenda:</b>
+  |===
+  | **Controller** | Recebe requisições HTTP
+  | **Service** | Lógica de negócio
+  |===
+endlegend
+
+@enduml
+
+' Para abrir o preview do diagrama basta usar o "ALT + D"

@@ -1,0 +1,20 @@
+@startuml SystemContextDeiaAtelie
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+' Título do Diagrama
+title Diagrama de Contexto do Sistema - Deia Ateliê
+
+' Definição do Sistema Principal
+System(deiaAtelie, "Sistema de Gerenciamento do Deia Ateliê", "Sistema para agendamento e administração de serviços de costura.")
+
+' Definição das Pessoas
+Person(cliente, "Cliente", "Pessoa que agenda serviços de costura.")
+Person(donaAtelie, "Dona do Ateliê (Administradora)", "Gerencia clientes, agendamentos e serviços.")
+
+' Relacionamentos
+Rel(cliente, deiaAtelie, "Agenda serviços, consulta agendamentos, visualiza perfil")
+Rel(donaAtelie, deiaAtelie, "Gerencia clientes, agendamentos e serviços")
+
+@enduml
+
+' Para abrir o preview do diagrama basta usar o "ALT + D"

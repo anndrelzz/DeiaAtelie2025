@@ -1,0 +1,33 @@
+@startuml ContainerDeiaAtelie
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' Título do Diagrama
+title Diagrama de Contêineres - Deia Ateliê
+
+' Definição das pessoas externas (do nível de contexto)
+Person(cliente, "Cliente", "Pessoa que agenda serviços de costura.")
+Person(donaAtelie, "Dona do Ateliê", "Gerencia clientes, agendamentos e serviços.")
+
+' Definição do sistema principal e seus limites
+System_Boundary(deiaAtelieSystem, "Sistema de Gerenciamento do Deia Ateliê") {
+
+    ' Contêineres Internos do Sistema
+    Container(webCliente, "Aplicação Web do Cliente", "Frontend (HTML, CSS, JavaScript)", "Interface para agendamento e perfil do cliente.")
+    Container(webAdmin, "Aplicação Web do Administrador", "Frontend (HTML, CSS, JavaScript)", "Interface para gerenciamento do ateliê.")
+    Container(apiBackend, "API de Backend", "Serviço RESTful (Node.js)", "Lógica de negócio e acesso a dados.")
+    ContainerDb(database, "Banco de Dados", "Relacional (e.g., PostgreSQL)", "Armazena todos os dados do sistema.")
+
+}
+
+' --- Relacionamentos entre Pessoas e Contêineres ---
+Rel(cliente, webCliente, "Usa", "HTTPS")
+Rel(donaAtelie, webAdmin, "Usa", "HTTPS")
+
+' --- Relacionamentos entre Contêineres ---
+Rel(webCliente, apiBackend, "Faz requisições API", "HTTPS/JSON")
+Rel(webAdmin, apiBackend, "Faz requisições API", "HTTPS/JSON")
+Rel(apiBackend, database, "Lê e Escreve dados", "Driver DB Node.js / SQL")
+
+@enduml
+
+' Para abrir o preview do diagrama basta usar o "ALT + D"
