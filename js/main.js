@@ -103,31 +103,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Handle contact form submission
-    const contactForm = document.getElementById('contact-form');
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(contactForm);
-            const data = {
-                name: formData.get('name'),
-                email: formData.get('email'),
-                phone: formData.get('phone'),
-                service: formData.get('service'),
-                message: formData.get('message')
-            };
-            
-            console.log('Contact form data:', data);
-            
-            // Here you would typically send the data to your backend
-            alert('Mensagem enviada com sucesso! Entraremos em contato em breve.');
-            
-            // Reset form
-            contactForm.reset();
-        });
-    }
-
     // Smooth scrolling for navigation links
     const navLinks = document.querySelectorAll('a[href^="#"]');
     navLinks.forEach(link => {
