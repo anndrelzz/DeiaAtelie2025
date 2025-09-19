@@ -1,0 +1,9 @@
+# Pasta de dependências do Node.js
+/backend/node_modules
+
+# Arquivos de configuração de ambiente
+/backend/.env
+
+# Arquivos de package do Node.js
+/backend/package-lock.json
+/backend/package.json
