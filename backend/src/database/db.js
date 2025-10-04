@@ -1,20 +1,31 @@
 const { Pool } = require('pg');
-require('dotenv').config();
 
-const pool = connectionString
-  ? new Pool({
-      connectionString,
-      ssl: { rejectUnauthorized: false },
-    })
-  : new Pool({
+let pool = null;
+
+function ensurePool() {
+  if (pool) return pool;
+
+  const hasSplit =
+    process.env.DB_HOST && process.env.DB_USER && process.env.DB_DATABASE;
+
+  if (hasSplit) {
+    pool = new Pool({
       user: process.env.DB_USER,
       host: process.env.DB_HOST,
       database: process.env.DB_DATABASE,
       password: process.env.DB_PASSWORD,
-      port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
+      port: Number(process.env.DB_PORT || 5432),
       ssl: { rejectUnauthorized: false },
     });
+  } else {
+    throw new Error(
+      'Database configuration missing: set DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, DB_PORT'
+    );
+  }
+
+  return pool;
+}
 
 module.exports = {
-  query: (text, params) => pool.query(text, params),
+  query: (text, params) => ensurePool().query(text, params),
 };
