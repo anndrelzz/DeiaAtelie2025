@@ -16,6 +16,8 @@ function ensurePool() {
       password: process.env.DB_PASSWORD,
       port: Number(process.env.DB_PORT || 5432),
       ssl: { rejectUnauthorized: false },
+      max: 1,
+      idleTimeoutMillis: 5000, 
     });
   } else {
     throw new Error(
