@@ -79,27 +79,56 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle login form submission
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
+        loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const formData = new FormData(loginForm);
-            const data = {
-                email: formData.get('email'),
-                password: formData.get('password')
-            };
-            
-            if (!isLoginMode) {
-                data.name = formData.get('name');
+            const email = formData.get('email');
+            const senha = formData.get('password');
+            const nome = formData.get('name');
+
+            // Adiciona feedback de loading no botão
+            const submitBtn = loginForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            // Você pode adicionar um estilo CSS para .spinner se quiser
+            submitBtn.innerHTML = '<span class="spinner"></span> Carregando...'; 
+
+            try {
+                if (isLoginMode) {
+                    // --- LÓGICA DE LOGIN ---
+                    console.log('Tentando login com:', { email, senha });
+                    // Chama a função de login da api.js
+                    await window.API.loginUser({ email, senha }); 
+                    
+                    alert('Login realizado com sucesso!');
+                    closeModal();
+                    // TODO: Atualizar a UI para mostrar que está logado
+                    // (ex: mudar o botão "Entrar" para "Minha Conta")
+                    
+                } else {
+                    // --- LÓGICA DE REGISTRO ---
+                    console.log('Tentando registrar com:', { nome, email, senha });
+                    // Chama a função de registro da api.js
+                    await window.API.registerUser({ nome, email, senha }); 
+                    
+                    alert('Cadastro realizado com sucesso! Você já está logado.');
+                    closeModal();
+                    // TODO: Atualizar a UI
+                }
+                
+                // Sucesso
+                loginForm.reset();
+
+            } catch (error) {
+                // Se o backend der um erro (ex: email já existe, senha errada)
+                console.error('Falha no login/registro:', error);
+                alert(`Erro: ${error.message}`);
+            } finally {
+                // Restaura o botão
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
             }
-            
-            console.log(isLoginMode ? 'Login data:' : 'Register data:', data);
-            
-            // Here you would typically send the data to your backend
-            alert(isLoginMode ? 'Login realizado com sucesso!' : 'Cadastro realizado com sucesso!');
-            closeModal();
-            
-            // Reset form
-            loginForm.reset();
         });
     }
 
