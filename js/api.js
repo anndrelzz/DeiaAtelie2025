@@ -57,10 +57,33 @@ async function createAppointment({ id_servico, inicioISO, fimISO, observacoes })
 
 async function fetchMyAppointments() { return apiFetch("/api/agendamentos/me"); }
 
+
+async function adminFetchServices() {
+  return apiFetch("/api/servicos");
+}
+
+async function adminCreateService(data) {
+  return apiFetch("/api/servicos", { method: "POST", body: data });
+}
+
+async function adminUpdateService(id, data) {
+  return apiFetch(`/api/servicos/${id}`, { method: "PUT", body: data });
+}
+
+async function adminDeleteService(id) {
+  return apiFetch(`/api/servicos/${id}`, { method: "DELETE" });
+}
+
 window.API = Object.freeze({
   API_BASE,
   setAuth, getToken, getUser, logout,
   registerUser, loginUser, loginAdmin,
+  
   fetchServices, fetchAgendaConfig,
   createAppointment, fetchMyAppointments,
+  
+  adminFetchServices,
+  adminCreateService,
+  adminUpdateService,
+  adminDeleteService
 });
