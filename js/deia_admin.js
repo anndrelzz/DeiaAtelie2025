@@ -208,10 +208,9 @@ function renderServicesGrid() {
     currentServices.forEach(service => {
         const card = document.createElement('div');
         card.className = 'service-card';
-        
         const isActive = service.ativo;
         if (!isActive) {
-            card.style.opacity = '0.6';
+            card.style.opacity = '0.6'; // Deixa o card inativo mais apagado
         }
 
         card.innerHTML = `
@@ -417,7 +416,7 @@ async function saveService() {
     }
 }
 
-async function toggleServiceActive(id) {
+async function toggleServiceActive(id) { 
     const service = currentServices.find(s => s.id == id);
     if (!service) return showToast("Serviço não encontrado.", "error");
 
@@ -428,7 +427,11 @@ async function toggleServiceActive(id) {
      
     showLoading();
     try {
-        const serviceData = { ...service, ativo: newState };
+        const serviceData = {
+            ...service, // Mantém os dados antigos
+            ativo: newState // Muda o estado
+        };
+        
         await window.API.adminUpdateService(id, serviceData);
         
         showToast(`Serviço ${newState ? 'ativado' : 'desativado'}!`, 'success');
@@ -703,9 +706,9 @@ if (document.readyState === 'loading') {
     init();
 }
 
-window.editAppointment = editAppointment;
-window.deleteAppointment = deleteAppointment;
 window.editService = editService;
 window.toggleServiceActive = toggleServiceActive;
 window.editClient = editClient;
 window.deleteClient = deleteClient;
+window.editAppointment = editAppointment;
+window.deleteAppointment = deleteAppointment;

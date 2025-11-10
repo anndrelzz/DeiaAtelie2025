@@ -10,6 +10,16 @@ async function list(req, res) {
   }
 }
 
+async function listAllAdmin(req, res) {
+  try {
+    const items = await servicoService.listAllAdmin();
+    res.json(items);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Erro ao listar todos os serviços.' });
+  }
+}
+
 async function create(req, res) {
   try {
     const { nome, descricao, preco, duracao_estimada_minutos } = req.body;
@@ -66,6 +76,7 @@ async function remove(req, res) {
 
 module.exports = { 
   list,
+  listAllAdmin,
   create,
   update,
   remove 

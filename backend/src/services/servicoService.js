@@ -36,8 +36,16 @@ async function deleteById(id) {
   return rows[0];
 }
 
+async function listAllAdmin() {
+  const { rows } = await db.query(
+    'SELECT * FROM servicos ORDER BY nome ASC'
+  );
+  return rows;
+}
+
 module.exports = { 
   listServicosAtivos,
+  listAllAdmin,
   create,
   update,
   deleteById
