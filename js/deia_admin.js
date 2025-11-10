@@ -1,7 +1,10 @@
+// js/deia_admin.js (MODO REAL - Ligado à API)
+
 let currentServices = [];
 let currentClients = [];
 let currentAppointments = [];
 
+// --- Funções Utilitárias ---
 function formatCurrency(value) {
     const numValue = Number(value);
     if (isNaN(numValue)) return 'R$ --,--';
@@ -12,6 +15,7 @@ function formatDate(isoString) {
     try {
         const date = new Date(isoString);
         if (isNaN(date.getTime())) return 'Data Inválida';
+        // Usar UTC para evitar problemas de fuso horário no admin
         return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' }); 
     } catch { return 'Erro Data'; }
 }
@@ -33,7 +37,41 @@ function getStatusBadge(status) {
     const statusInfo = statusMap[status] || { class: '', text: status };
     return `<span class="status-badge ${statusInfo.class}">${statusInfo.text}</span>`;
 }
+function getClientName(clientId) {
+    const client = currentClients.find(c => c.id == clientId);
+    return client ? client.nome : `ID ${clientId} Desconhecido`;
+}
+function getServiceName(serviceId) {
+    const service = currentServices.find(s => s.id == serviceId);
+    return service ? service.nome : `ID ${serviceId} Desconhecido`;
+}
+function getServicePrice(serviceId) {
+    const service = currentServices.find(s => s.id == serviceId);
+    return service ? Number(service.preco) : 0;
+}
+// Converte um ISO String (UTC) para os inputs date e time locais
+function isoToLocalDate(isoString) {
+    if (!isoString) return { date: '', time: '' };
+    try {
+        const date = new Date(isoString);
+        const yyyy = date.getUTCFullYear();
+        const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const dd = String(date.getUTCDate()).padStart(2, '0');
+        const hh = String(date.getUTCHours()).padStart(2, '0');
+        const mi = String(date.getUTCMinutes()).padStart(2, '0');
+        return { date: `${yyyy}-${mm}-${dd}`, time: `${hh}:${mi}` };
+    } catch {
+        return { date: '', time: '' };
+    }
+}
+// Converte inputs date e time locais para um ISO String (UTC)
+function localToISO(dateStr, timeStr) {
+    if (!dateStr || !timeStr) return null;
+    // Cria a data como UTC
+    return `${dateStr}T${timeStr}:00.000Z`;
+}
 
+// --- Funções de Loading e Modal ---
 function showLoading() { document.getElementById('loadingOverlay')?.classList.remove('d-none'); }
 function hideLoading() { document.getElementById('loadingOverlay')?.classList.add('d-none'); }
 function showToast(message, type = 'info') { 
@@ -60,26 +98,104 @@ function closeModal(modalId) {
     }
 }
 
+// --- Funções de Carregamento de Dados (Reais) ---
 async function loadServices() {
     console.log("A carregar serviços da API...");
-    showLoading();
     try {
         const services = await window.API.adminFetchServices();
         currentServices = services;
         console.log("Serviços carregados:", currentServices);
-        renderServicesGrid();
     } catch (error) {
         console.error("Erro ao carregar serviços:", error);
         showToast(`Erro ao carregar serviços: ${error.message}`, 'error');
+    }
+}
+
+async function loadClients() {
+    console.log("A carregar clientes da API...");
+    try {
+        const clients = await window.API.adminFetchClients();
+        currentClients = clients;
+        console.log("Clientes carregados:", currentClients);
+    } catch (error) {
+        console.error("Erro ao carregar clientes:", error);
+        showToast(`Erro ao carregar clientes: ${error.message}`, 'error');
+    }
+}
+
+async function loadAppointments() {
+    console.log("A carregar agendamentos da API...");
+    showLoading();
+    try {
+        const appointments = await window.API.adminFetchAppointments();
+        currentAppointments = appointments;
+        console.log("Agendamentos carregados:", currentAppointments);
+        renderAppointmentsTable();
+    } catch (error) {
+        console.error("Erro ao carregar agendamentos:", error);
+        showToast(`Erro ao carregar agendamentos: ${error.message}`, 'error');
     } finally {
         hideLoading();
     }
 }
 
+// --- Populating Selects ---
+async function updateClientOptions(selectId = 'appointmentClient', selectedId = null) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    select.innerHTML = '<option value="">Selecione um cliente</option>';
+    currentClients.forEach(client => {
+        const option = document.createElement('option');
+        option.value = client.id; 
+        option.textContent = client.nome;
+        if (client.id == selectedId) option.selected = true;
+        select.appendChild(option);
+    });
+}
+async function updateServiceOptions(selectId = 'appointmentService', selectedId = null) {
+    const select = document.getElementById(selectId);
+     if (!select) return;
+    select.innerHTML = '<option value="">Selecione um serviço</option>';
+    currentServices.forEach(service => {
+        const option = document.createElement('option');
+        option.value = service.id; 
+        option.textContent = `${service.nome} - ${formatCurrency(service.preco)}`;
+        if (service.id == selectedId) option.selected = true;
+        select.appendChild(option);
+    });
+}
+
+// --- Funções de Renderização (Usam dados reais) ---
+
 function renderAppointmentsTable() {
     const tbody = document.getElementById('appointmentsTable');
     if (!tbody) return;
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">(Função de Agendamentos de Admin ainda não implementada)</td></tr>';
+    tbody.innerHTML = '';
+
+    if (!currentAppointments || currentAppointments.length === 0) {
+         tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Nenhum agendamento encontrado.</td></tr>';
+         return;
+    }
+
+    currentAppointments.forEach(app => {
+        const row = document.createElement('tr');
+         row.innerHTML = `
+            <td data-label="ID">${app.id}</td>
+            <td data-label="Cliente">${getClientName(app.id_usuario)}</td>
+            <td data-label="Serviço">${getServiceName(app.id_servico)}</td>
+            <td data-label="Data">${formatDate(app.data_hora_inicio)}</td>
+            <td data-label="Horário">${formatTime(app.data_hora_inicio)}</td>
+            <td data-label="Valor">${formatCurrency(app.preco || getServicePrice(app.id_servico))}</td>
+            <td data-label="Status">${getStatusBadge(app.status)}</td>
+            <td data-label="Ações">
+                <div class="action-buttons">
+                    <button class="action-btn edit-btn" onclick="editAppointment(${app.id})" title="Editar"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete-btn" onclick="deleteAppointment(${app.id})" title="Excluir"><i class="fas fa-trash"></i></button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
 }
 
 function renderServicesGrid() {
@@ -118,7 +234,129 @@ function renderServicesGrid() {
 function renderClientsTable() {
     const tbody = document.getElementById('clientsTable');
     if (!tbody) return;
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">(Função de Clientes de Admin ainda não implementada)</td></tr>';
+    tbody.innerHTML = '';
+    
+    if (!currentClients || currentClients.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum cliente encontrado.</td></tr>';
+        return;
+    }
+
+    currentClients.forEach(client => {
+        const appointmentCount = currentAppointments.filter(a => a.id_usuario == client.id).length;
+        const row = document.createElement('tr');
+         row.innerHTML = `
+            <td data-label="ID">${client.id}</td>
+            <td data-label="Nome">${client.nome}</td>
+            <td data-label="Email">${client.email}</td>
+            <td data-label="Telefone">${client.telefone || 'N/A'}</td>
+            <td data-label="Agendamentos">${appointmentCount}</td>
+            <td data-label="Ações">
+                <div class="action-buttons">
+                     <button class="action-btn edit-btn" onclick="editClient(${client.id})" title="Editar"><i class="fas fa-edit"></i></button>
+                     <button class="action-btn delete-btn" onclick="deleteClient(${client.id})" title="Excluir"><i class="fas fa-trash"></i></button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+
+// --- Funções CRUD (Ações Reais) ---
+
+async function editAppointment(id) {
+    const app = currentAppointments.find(a => a.id == id);
+    if (!app) return showToast("Agendamento não encontrado.", "error");
+
+    document.getElementById('appointmentModalTitle').textContent = 'Editar Agendamento';
+    document.getElementById('appointmentForm').reset();
+    document.getElementById('appointmentId').value = app.id;
+    
+    await updateClientOptions('appointmentClient', app.id_usuario);
+    await updateServiceOptions('appointmentService', app.id_servico);
+    
+    const { date, time } = isoToLocalDate(app.data_hora_inicio);
+    document.getElementById('appointmentDate').value = date;
+    document.getElementById('appointmentTime').value = time;
+    
+    document.getElementById('appointmentValue').value = app.preco || getServicePrice(app.id_servico);
+    document.getElementById('appointmentStatus').value = app.status;
+    document.getElementById('appointmentObservations').value = app.observacoes;
+    
+    openModal('appointmentModal');
+}
+
+async function saveAppointment() {
+    const id = document.getElementById('appointmentId').value;
+    const isEditing = !!id;
+    
+    const dateStr = document.getElementById('appointmentDate').value;
+    const timeStr = document.getElementById('appointmentTime').value;
+    if (!dateStr || !timeStr) return showToast("Data e Horário são obrigatórios.", "error");
+
+    const dataHoraInicioISO = localToISO(dateStr, timeStr);
+    
+    const serviceId = document.getElementById('appointmentService').value;
+    const service = currentServices.find(s => s.id == serviceId);
+    const serviceDuration = service ? service.duracao_estimada_minutos : 60;
+    
+    const dataHoraFim = new Date(new Date(dataHoraInicioISO).getTime() + serviceDuration * 60000);
+    const dataHoraFimISO = dataHoraFim.toISOString();
+
+    const appointmentData = {
+        id_usuario: parseInt(document.getElementById('appointmentClient').value),
+        id_servico: parseInt(serviceId),
+        data_hora_inicio: dataHoraInicioISO,
+        data_hora_fim: dataHoraFimISO,
+        preco: parseFloat(document.getElementById('appointmentValue').value),
+        status: document.getElementById('appointmentStatus').value,
+        observacoes: document.getElementById('appointmentObservations').value || null,
+    };
+    
+    if (isNaN(appointmentData.id_usuario) || isNaN(appointmentData.id_servico)) {
+        return showToast("Cliente e Serviço são obrigatórios.", "error");
+    }
+
+    showLoading();
+    try {
+        if (isEditing) {
+            await window.API.adminUpdateAppointment(id, appointmentData);
+        } else {
+            // Criar novo agendamento pelo admin (ainda não implementado na API)
+            // await window.API.adminCreateAppointment(appointmentData); 
+            // Por agora, apenas o update funciona
+             showToast("A criação de novos agendamentos pelo admin ainda não está implementada.", "info");
+             // Temporário: apenas atualiza
+             if(isEditing) await window.API.adminUpdateAppointment(id, appointmentData);
+        }
+        
+        showToast(`Agendamento ${isEditing ? 'atualizado' : 'criado'}!`, 'success');
+        closeModal('appointmentModal');
+        await loadAppointments();
+        await updateDashboard();
+        
+    } catch (error) {
+        console.error("Erro ao salvar agendamento:", error);
+        showToast(`Erro: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+async function deleteAppointment(id) {
+     if (!confirm('Excluir este agendamento permanentemente?')) return;
+     showLoading();
+     try {
+         await window.API.adminDeleteAppointment(id);
+         showToast('Agendamento excluído!', 'success');
+         await loadAppointments();
+         await updateDashboard();
+     } catch (error) {
+         console.error("Erro ao excluir agendamento:", error);
+         showToast(`Erro: ${error.message}`, 'error');
+     } finally {
+         hideLoading();
+     }
 }
 
 function editService(id) {
@@ -126,6 +364,7 @@ function editService(id) {
     if (!service) return showToast("Serviço não encontrado.", "error");
 
     document.getElementById('serviceModalTitle').textContent = 'Editar Serviço';
+    document.getElementById('serviceForm').reset();
     document.getElementById('serviceId').value = service.id;
     document.getElementById('serviceName').value = service.nome;
     document.getElementById('servicePrice').value = service.preco;
@@ -144,27 +383,24 @@ async function saveService() {
         preco: parseFloat(document.getElementById('servicePrice').value),
         duracao_estimada_minutos: parseInt(document.getElementById('serviceDuration').value),
         descricao: document.getElementById('serviceDescription').value || null,
-        ativo: true
+        ativo: true 
     };
 
     if (!serviceData.nome || isNaN(serviceData.preco) || isNaN(serviceData.duracao_estimada_minutos)) {
-        return showToast("Nome, Preço e Duração são obrigatórios e devem ser números válidos.", "error");
+        return showToast("Nome, Preço e Duração são obrigatórios.", "error");
     }
 
     showLoading();
     try {
         if (isEditing) {
-            console.log("A atualizar serviço:", id, serviceData);
             await window.API.adminUpdateService(id, serviceData);
         } else {
-            console.log("A criar novo serviço:", serviceData);
             await window.API.adminCreateService(serviceData);
         }
         
-        showToast(`Serviço ${isEditing ? 'atualizado' : 'criado'} com sucesso!`, 'success');
+        showToast(`Serviço ${isEditing ? 'atualizado' : 'criado'}!`, 'success');
         closeModal('serviceModal');
-        document.getElementById('serviceForm').reset();
-        await loadServices(); 
+        await loadServices();
         
     } catch (error) {
         console.error("Erro ao salvar serviço:", error);
@@ -175,40 +411,141 @@ async function saveService() {
 }
 
 async function deleteService(id) {
-    if (!confirm('Tem a certeza que quer DESATIVAR este serviço?')) return;
-     
-    showLoading();
-    try {
-        console.log("A desativar serviço:", id);
-        await window.API.adminDeleteService(id);
-        showToast('Serviço desativado com sucesso!', 'success');
-        await loadServices(); 
-        
-    } catch (error) {
-        console.error("Erro ao desativar serviço:", error);
-        showToast(`Erro: ${error.message}`, 'error');
-    } finally {
-        hideLoading();
-    }
+     if (!confirm('DESATIVAR este serviço? (Ele não será apagado, apenas ocultado)')) return;
+     showLoading();
+     try {
+         await window.API.adminDeleteService(id);
+         showToast('Serviço desativado!', 'success');
+         await loadServices(); 
+     } catch (error) {
+         console.error("Erro ao desativar serviço:", error);
+         showToast(`Erro: ${error.message}`, 'error');
+     } finally {
+         hideLoading();
+     }
 }
 
+function editClient(id) {
+    const client = currentClients.find(c => c.id == id);
+    if (!client) return showToast("Cliente não encontrado.", "error");
+
+    document.getElementById('clientModalTitle').textContent = 'Editar Cliente';
+    document.getElementById('clientForm').reset();
+    document.getElementById('clientId').value = client.id;
+    document.getElementById('clientName').value = client.nome;
+    document.getElementById('clientEmail').value = client.email;
+    document.getElementById('clientPhone').value = client.telefone;
+    
+    const passwordInput = document.getElementById('clientPassword');
+    passwordInput.placeholder = "(Deixe em branco para não alterar)";
+    passwordInput.required = false; 
+    
+    openModal('clientModal');
+}
+
+async function saveClient() {
+     const id = document.getElementById('clientId').value;
+     const isEditing = !!id;
+
+     const clientData = {
+         nome: document.getElementById('clientName').value,
+         email: document.getElementById('clientEmail').value,
+         telefone: document.getElementById('clientPhone').value || null,
+         tipo_usuario: 'cliente', // Admin não deve criar outros admins por aqui
+         senha: document.getElementById('clientPassword').value || null
+     };
+     
+    if (!clientData.nome || !clientData.email) {
+        return showToast("Nome e Email são obrigatórios.", "error");
+    }
+     
+    if (!isEditing && !clientData.senha) {
+        return showToast("Senha é obrigatória para novos clientes.", "error");
+    }
+
+     showLoading();
+     try {
+        if (isEditing) {
+            if (!clientData.senha) delete clientData.senha; // Não envia senha se estiver vazia
+            await window.API.adminUpdateClient(id, clientData);
+        } else {
+            await window.API.adminCreateClient(clientData);
+        }
+        showToast(`Cliente ${isEditing ? 'atualizado' : 'criado'}!`, 'success');
+        closeModal('clientModal');
+        await loadClients();
+        
+     } catch (error) {
+         console.error("Erro ao salvar cliente:", error);
+         showToast(`Erro: ${error.message}`, 'error');
+     } finally {
+         hideLoading();
+     }
+}
+
+async function deleteClient(id) {
+     if (!confirm('APAGAR este cliente? (Atenção: isto só funciona se o cliente não tiver agendamentos!)')) return;
+     showLoading();
+     try {
+        await window.API.adminDeleteClient(id);
+        showToast('Cliente apagado!', 'success');
+        await loadClients();
+     } catch (error) {
+         console.error("Erro ao apagar cliente:", error);
+         showToast(`Erro: ${error.message}`, 'error');
+     } finally {
+         hideLoading();
+     }
+}
+
+// --- Dashboard Update ---
 async function updateDashboard() {
     console.log("A atualizar Dashboard...");
+    
+    if (currentAppointments.length === 0) await loadAppointments();
+
+    const today = new Date().toISOString().split('T')[0];
+    const thisMonth = new Date().toISOString().slice(0, 7);
+
+    const todayAppointments = currentAppointments.filter(a =>
+        a.data_hora_inicio?.startsWith(today) &&
+        a.status !== 'cancelado' && a.status !== 'concluído'
+    );
     const todayAppointmentsValueEl = document.querySelector('#dashboard .stats-grid .stat-card:nth-child(1) .stat-value');
-    if(todayAppointmentsValueEl) todayAppointmentsValueEl.textContent = 0;
+    if(todayAppointmentsValueEl) todayAppointmentsValueEl.textContent = todayAppointments.length;
 
+    const monthlyAppointmentsCount = currentAppointments.filter(a => a.data_hora_inicio?.startsWith(thisMonth)).length;
     const monthlyAppointmentsValueEl = document.querySelector('#dashboard .stats-grid .stat-card:nth-child(2) .stat-value');
-    if(monthlyAppointmentsValueEl) monthlyAppointmentsValueEl.textContent = 0;
+    if(monthlyAppointmentsValueEl) monthlyAppointmentsValueEl.textContent = monthlyAppointmentsCount;
 
+    const completedThisMonth = currentAppointments.filter(a => a.status === 'concluído' && a.data_hora_inicio?.startsWith(thisMonth));
+    const monthlyRevenue = completedThisMonth.reduce((sum, a) => sum + (Number(a.preco) || getServicePrice(a.id_servico)), 0);
     const monthlyRevenueValueEl = document.querySelector('#dashboard .stats-grid .stat-card:nth-child(3) .stat-value');
-    if(monthlyRevenueValueEl) monthlyRevenueValueEl.textContent = formatCurrency(0);
+    if(monthlyRevenueValueEl) monthlyRevenueValueEl.textContent = formatCurrency(monthlyRevenue);
 
     const dashboardTbody = document.getElementById('dashboardAppointments');
     if (dashboardTbody) {
-        dashboardTbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">(Dashboard ainda não implementado)</td></tr>`;
+        dashboardTbody.innerHTML = ''; 
+        if (todayAppointments.length === 0) {
+            dashboardTbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Nenhum agendamento para hoje.</td></tr>`;
+        } else {
+            todayAppointments.sort((a, b) => new Date(a.data_hora_inicio) - new Date(b.data_hora_inicio));
+            todayAppointments.forEach(app => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td data-label="Cliente">${getClientName(app.id_usuario)}</td>
+                    <td data-label="Serviço">${getServiceName(app.id_servico)}</td>
+                    <td data-label="Data">${formatDate(app.data_hora_inicio)}</td>
+                    <td data-label="Horário">${formatTime(app.data_hora_inicio)}</td>
+                    <td data-label="Status">${getStatusBadge(app.status)}</td>
+                `;
+                dashboardTbody.appendChild(row);
+            });
+        }
     }
 }
 
+// --- Navigation and Setup ---
 function showSection(sectionId) {
     console.log("A mostrar secção:", sectionId);
     document.querySelectorAll('.content-section').forEach(section => { section.classList.remove('active'); });
@@ -225,14 +562,16 @@ function showSection(sectionId) {
     };
     document.getElementById('pageTitle').textContent = titles[sectionId] || 'Painel';
 
+    // Carrega os dados da secção ativa
     switch(sectionId) {
-        case 'appointments': renderAppointmentsTable(); break;
+        case 'appointments': loadAppointments(); break;
         case 'services': loadServices(); break;
-        case 'clients': renderClientsTable(); break;
+        case 'clients': loadClients(); break;
         case 'dashboard': updateDashboard(); break;
     }
 }
 
+// --- Init Function ---
 async function init() {
     console.log("A inicializar painel admin (MODO REAL)...");
     
@@ -246,6 +585,12 @@ async function init() {
     }
     
     document.getElementById('pageTitle').textContent = `Bem-vindo(a), ${user.nome}!`;
+    
+    showLoading();
+    // Carrega dados essenciais para os modais
+    await loadServices();
+    await loadClients();
+    hideLoading();
 
     console.log("A configurar Event Listeners...");
 
@@ -280,11 +625,16 @@ async function init() {
          }
      });
 
-    document.getElementById('newAppointmentBtn')?.addEventListener('click', () => {
-        alert("Função de 'Novo Agendamento' ainda não implementada.");
+    document.getElementById('newAppointmentBtn')?.addEventListener('click', async () => {
+        document.getElementById('appointmentModalTitle').textContent = 'Novo Agendamento';
+        document.getElementById('appointmentForm')?.reset();
+        document.getElementById('appointmentId').value = '';
+        await updateClientOptions('appointmentClient');
+        await updateServiceOptions('appointmentService');
+        openModal('appointmentModal');
     });
     document.getElementById('addAppointmentBtn')?.addEventListener('click', () => { 
-        alert("Função de 'Novo Agendamento' ainda não implementada.");
+        document.getElementById('newAppointmentBtn')?.click(); 
     });
     
     document.getElementById('addServiceBtn')?.addEventListener('click', () => {
@@ -295,18 +645,31 @@ async function init() {
     });
     
     document.getElementById('addClientBtn')?.addEventListener('click', () => {
-        alert("Função de 'Novo Cliente' ainda não implementada.");
+        document.getElementById('clientModalTitle').textContent = 'Novo Cliente';
+        document.getElementById('clientForm')?.reset();
+        document.getElementById('clientId').value = '';
+        const passwordInput = document.getElementById('clientPassword');
+        passwordInput.placeholder = "Senha (obrigatória para novo)";
+        passwordInput.required = true;
+        openModal('clientModal');
     });
 
-    document.getElementById('saveAppointmentBtn')?.addEventListener('click', () => alert("Não implementado."));
+    document.getElementById('saveAppointmentBtn')?.addEventListener('click', saveAppointment);
     document.getElementById('saveServiceBtn')?.addEventListener('click', saveService);
-    document.getElementById('saveClientBtn')?.addEventListener('click', () => alert("Não implementado."));
+    document.getElementById('saveClientBtn')?.addEventListener('click', saveClient);
 
     document.querySelectorAll('.modal-close, button.btn-secondary[data-modal]').forEach(btn => {
         btn.addEventListener('click', function() {
             const modalId = this.getAttribute('data-modal') || this.closest('.modal')?.id;
             if (modalId) closeModal(modalId);
         });
+    });
+    
+    document.getElementById('appointmentService')?.addEventListener('change', function() {
+        const serviceId = this.value;
+        const servicePrice = getServicePrice(serviceId);
+        const valueInput = document.getElementById('appointmentValue');
+        if(valueInput) valueInput.value = servicePrice;
     });
 
     document.addEventListener('keydown', (e) => {
@@ -325,5 +688,9 @@ if (document.readyState === 'loading') {
     init();
 }
 
+window.editAppointment = editAppointment;
+window.deleteAppointment = deleteAppointment;
 window.editService = editService;
 window.deleteService = deleteService;
+window.editClient = editClient;
+window.deleteClient = deleteClient;

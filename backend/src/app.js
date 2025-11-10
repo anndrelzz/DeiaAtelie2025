@@ -17,6 +17,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/servicos', servicoRoutes);
 app.use('/api/agendamentos', agendamentoRoutes);
 app.use('/api/agenda', agendaRoutes);
-app.use('/api/usuarios', userRoutes);
+app.use('/api/usuarios', userRoutes); 
 
 module.exports = app;

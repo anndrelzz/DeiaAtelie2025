@@ -29,49 +29,69 @@ async function apiFetch(path, { method = "GET", body, headers } = {}) {
   return data;
 }
 
+// --- Auth (Cliente & Admin) ---
 async function registerUser({ nome, email, senha, tipo_usuario = "cliente", telefone = null }) {
   const data = await apiFetch("/api/auth/register", { method: "POST", body: { nome, email, senha, tipo_usuario, telefone } });
   setAuth(data.token, data.user); return data;
 }
-
 async function loginUser({ email, senha }) {
   const data = await apiFetch("/api/auth/login", { method: "POST", body: { email, senha } });
   setAuth(data.token, data.user); return data;
 }
-
 async function loginAdmin(payload) {
   const data = await loginUser(payload);
   if (data.user?.tipo_usuario !== "administrador") { logout(); throw new Error("Acesso restrito a administradores."); }
   return data;
 }
 
+// --- Cliente ---
 async function fetchServices() { return apiFetch("/api/servicos"); }
 async function fetchAgendaConfig() { return apiFetch("/api/agenda"); }
-
 async function createAppointment({ id_servico, inicioISO, fimISO, observacoes }) {
   return apiFetch("/api/agendamentos", {
     method: "POST",
     body: { id_servico, data_hora_inicio: inicioISO, data_hora_fim: fimISO, observacoes: observacoes || null },
   });
 }
-
 async function fetchMyAppointments() { return apiFetch("/api/agendamentos/me"); }
 
-
+// --- Admin: Serviços ---
 async function adminFetchServices() {
   return apiFetch("/api/servicos");
 }
-
 async function adminCreateService(data) {
   return apiFetch("/api/servicos", { method: "POST", body: data });
 }
-
 async function adminUpdateService(id, data) {
   return apiFetch(`/api/servicos/${id}`, { method: "PUT", body: data });
 }
-
 async function adminDeleteService(id) {
   return apiFetch(`/api/servicos/${id}`, { method: "DELETE" });
+}
+
+// --- Admin: Clientes (Usuários) ---
+async function adminFetchClients() {
+  return apiFetch("/api/usuarios");
+}
+async function adminCreateClient(data) {
+  return apiFetch("/api/usuarios", { method: "POST", body: data });
+}
+async function adminUpdateClient(id, data) {
+  return apiFetch(`/api/usuarios/${id}`, { method: "PUT", body: data });
+}
+async function adminDeleteClient(id) {
+  return apiFetch(`/api/usuarios/${id}`, { method: "DELETE" });
+}
+
+// --- Admin: Agendamentos ---
+async function adminFetchAppointments() {
+  return apiFetch("/api/agendamentos");
+}
+async function adminUpdateAppointment(id, data) {
+  return apiFetch(`/api/agendamentos/${id}`, { method: "PUT", body: data });
+}
+async function adminDeleteAppointment(id) {
+  return apiFetch(`/api/agendamentos/${id}`, { method: "DELETE" });
 }
 
 window.API = Object.freeze({
@@ -85,5 +105,14 @@ window.API = Object.freeze({
   adminFetchServices,
   adminCreateService,
   adminUpdateService,
-  adminDeleteService
+  adminDeleteService,
+  
+  adminFetchClients,
+  adminCreateClient,
+  adminUpdateClient,
+  adminDeleteClient,
+  
+  adminFetchAppointments,
+  adminUpdateAppointment,
+  adminDeleteAppointment
 });
