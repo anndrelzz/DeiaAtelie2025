@@ -16,10 +16,13 @@ document.addEventListener('DOMContentLoaded', function() {
             errorMessageContainer.textContent = '';
 
             const formData = new FormData(adminForm);
+            
+            // --- ESTA É A CORREÇÃO ---
             const data = {
                 email: formData.get('email'),
-                password: formData.get('password')
+                senha: formData.get('password') // Alterado de 'password' para 'senha'
             };
+            // --- FIM DA CORREÇÃO ---
 
             const submitBtn = adminForm.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.textContent;
