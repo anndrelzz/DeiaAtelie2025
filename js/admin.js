@@ -1,76 +1,64 @@
 document.addEventListener('DOMContentLoaded', function() {
     
-    // --- Seletores do Formulário ---
     const adminForm = document.getElementById('admin-form');
-    const errorMessage = document.getElementById('error-message'); // Para mostrar erros de login
+    const errorMessageContainer = document.createElement('p');
+    errorMessageContainer.id = 'error-message';
+    errorMessageContainer.style.color = 'var(--destructive)';
+    errorMessageContainer.style.textAlign = 'center';
+    errorMessageContainer.style.marginTop = '1rem';
     
     if (adminForm) {
-        adminForm.addEventListener('submit', function(e) {
+        adminForm.querySelector('button[type="submit"]').before(errorMessageContainer);
+        
+        adminForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Limpa mensagens de erro antigas
-            if (errorMessage) {
-                errorMessage.textContent = '';
-            }
+            errorMessageContainer.textContent = '';
 
             const formData = new FormData(adminForm);
             const data = {
                 email: formData.get('email'),
                 password: formData.get('password')
             };
+
+            const submitBtn = adminForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'A aceder...';
             
-            console.log('Admin login data:', data);
-            
-            // ---------------------------------------------------------------
-            // !!! CUIDADO: SIMULAÇÃO DE LOGIN - VULNERÁVEL !!!
-            // ---------------------------------------------------------------
-            // Esta lógica NUNCA deve existir no JavaScript (lado do cliente).
-            // O correto é enviar 'data' para um backend (servidor) usando fetch()
-            // e o servidor deve verificar as credenciais no banco de dados.
-            
-            if (data.email === 'admin@deiaatelie.com' && data.password === 'admin123') {
-                alert('Login administrativo realizado com sucesso!');
+            try {
+                console.log('A tentar login de admin com:', data.email);
+                await window.API.loginAdmin(data); 
                 
-                // Redireciona para o painel admin
-                window.location.href = 'deia_admin.html'; // <--- AQUI ESTÁ A SUA ALTERAÇÃO
+                window.location.href = 'deia_admin.html';
                 
-            } else {
-                // Mostra a mensagem de erro no HTML em vez de um alert()
-                if (errorMessage) {
-                    errorMessage.textContent = 'Credenciais inválidas. Tente novamente.';
-                } else {
-                    alert('Credenciais inválidas. Tente novamente.');
-                }
+            } catch (error) {
+                console.error('Falha no login de admin:', error);
+                errorMessageContainer.textContent = error.message;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
             }
-            // --- FIM DA SIMULAÇÃO DE LOGIN ---
         });
     }
 
-    // --- Efeitos de UI (Interativos) ---
     const inputs = document.querySelectorAll('input');
     
     inputs.forEach(input => {
-        // Efeito de zoom no foco
         input.addEventListener('focus', function() {
             this.parentElement.style.transform = 'scale(1.02)';
             this.parentElement.style.transition = 'transform 0.2s ease';
             
-            // Limpa a mensagem de erro ao começar a digitar
-            if (errorMessage) {
-                errorMessage.textContent = '';
-            }
+            errorMessageContainer.textContent = '';
         });
         
-        // Reseta o zoom ao sair do foco
         input.addEventListener('blur', function() {
             this.parentElement.style.transform = 'scale(1)';
         });
     });
 
-    // --- Animação de Entrada ---
     const adminCard = document.querySelector('.admin-card');
     if (adminCard) {
-        // Garante que a animação CSS seja aplicada
         adminCard.classList.add('slide-up-animation');
     }
 });
