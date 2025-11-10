@@ -57,7 +57,8 @@ async function fetchMyAppointments() { return apiFetch("/api/agendamentos/me"); 
 
 // --- Admin: Serviços ---
 async function adminFetchServices() {
-  return apiFetch("/api/servicos");
+  // Rota de admin que busca todos (incluindo inativos)
+  return apiFetch("/api/servicos/admin/all");
 }
 async function adminCreateService(data) {
   return apiFetch("/api/servicos", { method: "POST", body: data });

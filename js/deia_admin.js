@@ -1,5 +1,3 @@
-// js/deia_admin.js (MODO REAL - Ligado à API)
-
 let currentServices = [];
 let currentClients = [];
 let currentAppointments = [];
@@ -15,7 +13,6 @@ function formatDate(isoString) {
     try {
         const date = new Date(isoString);
         if (isNaN(date.getTime())) return 'Data Inválida';
-        // Usar UTC para evitar problemas de fuso horário no admin
         return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' }); 
     } catch { return 'Erro Data'; }
 }
@@ -49,7 +46,6 @@ function getServicePrice(serviceId) {
     const service = currentServices.find(s => s.id == serviceId);
     return service ? Number(service.preco) : 0;
 }
-// Converte um ISO String (UTC) para os inputs date e time locais
 function isoToLocalDate(isoString) {
     if (!isoString) return { date: '', time: '' };
     try {
@@ -64,10 +60,8 @@ function isoToLocalDate(isoString) {
         return { date: '', time: '' };
     }
 }
-// Converte inputs date e time locais para um ISO String (UTC)
 function localToISO(dateStr, timeStr) {
     if (!dateStr || !timeStr) return null;
-    // Cria a data como UTC
     return `${dateStr}T${timeStr}:00.000Z`;
 }
 
@@ -157,11 +151,14 @@ async function updateServiceOptions(selectId = 'appointmentService', selectedId 
      if (!select) return;
     select.innerHTML = '<option value="">Selecione um serviço</option>';
     currentServices.forEach(service => {
-        const option = document.createElement('option');
-        option.value = service.id; 
-        option.textContent = `${service.nome} - ${formatCurrency(service.preco)}`;
-        if (service.id == selectedId) option.selected = true;
-        select.appendChild(option);
+        // Mostra apenas serviços ativos no modal de agendamento
+        if(service.ativo) {
+            const option = document.createElement('option');
+            option.value = service.id; 
+            option.textContent = `${service.nome} - ${formatCurrency(service.preco)}`;
+            if (service.id == selectedId) option.selected = true;
+            select.appendChild(option);
+        }
     });
 }
 
@@ -181,8 +178,8 @@ function renderAppointmentsTable() {
         const row = document.createElement('tr');
          row.innerHTML = `
             <td data-label="ID">${app.id}</td>
-            <td data-label="Cliente">${getClientName(app.id_usuario)}</td>
-            <td data-label="Serviço">${getServiceName(app.id_servico)}</td>
+            <td data-label="Cliente">${app.usuario_nome || getClientName(app.id_usuario)}</td>
+            <td data-label="Serviço">${app.servico_nome || getServiceName(app.id_servico)}</td>
             <td data-label="Data">${formatDate(app.data_hora_inicio)}</td>
             <td data-label="Horário">${formatTime(app.data_hora_inicio)}</td>
             <td data-label="Valor">${formatCurrency(app.preco || getServicePrice(app.id_servico))}</td>
@@ -204,17 +201,23 @@ function renderServicesGrid() {
     container.innerHTML = '';
 
     if (!currentServices || currentServices.length === 0) {
-        container.innerHTML = '<p style="text-align: center;">Nenhum serviço ativo encontrado.</p>';
+        container.innerHTML = '<p style="text-align: center;">Nenhum serviço encontrado.</p>';
         return;
     }
 
     currentServices.forEach(service => {
         const card = document.createElement('div');
         card.className = 'service-card';
+        
+        const isActive = service.ativo;
+        if (!isActive) {
+            card.style.opacity = '0.6';
+        }
+
         card.innerHTML = `
             <div class="service-header">
                 <div class="service-info">
-                    <h3>${service.nome}</h3>
+                    <h3>${service.nome} ${isActive ? '' : '(Inativo)'}</h3>
                     <div class="service-price">${formatCurrency(service.preco)}</div>
                 </div>
             </div>
@@ -223,7 +226,9 @@ function renderServicesGrid() {
                 <p><strong>Duração:</strong> ${service.duracao_estimada_minutos} min</p>
                 <div class="service-actions">
                     <button class="btn btn-secondary btn-sm" onclick="editService(${service.id})">Editar</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteService(${service.id})">Desativar</button>
+                    <button class="btn ${isActive ? 'btn-danger' : 'btn-primary'} btn-sm" onclick="toggleServiceActive(${service.id})">
+                        ${isActive ? 'Desativar' : 'Ativar'}
+                    </button>
                 </div>
             </div>
         `;
@@ -289,6 +294,12 @@ async function editAppointment(id) {
 async function saveAppointment() {
     const id = document.getElementById('appointmentId').value;
     const isEditing = !!id;
+
+    if (!isEditing) {
+        // A API de admin não suporta CRIAÇÃO de agendamentos (só o cliente)
+        // A API de cliente (createAppointment) requer um ID de utilizador logado
+        return showToast("A criação de novos agendamentos pelo admin ainda não está implementada.", "info");
+    }
     
     const dateStr = document.getElementById('appointmentDate').value;
     const timeStr = document.getElementById('appointmentTime').value;
@@ -319,18 +330,8 @@ async function saveAppointment() {
 
     showLoading();
     try {
-        if (isEditing) {
-            await window.API.adminUpdateAppointment(id, appointmentData);
-        } else {
-            // Criar novo agendamento pelo admin (ainda não implementado na API)
-            // await window.API.adminCreateAppointment(appointmentData); 
-            // Por agora, apenas o update funciona
-             showToast("A criação de novos agendamentos pelo admin ainda não está implementada.", "info");
-             // Temporário: apenas atualiza
-             if(isEditing) await window.API.adminUpdateAppointment(id, appointmentData);
-        }
-        
-        showToast(`Agendamento ${isEditing ? 'atualizado' : 'criado'}!`, 'success');
+        await window.API.adminUpdateAppointment(id, appointmentData);
+        showToast(`Agendamento atualizado!`, 'success');
         closeModal('appointmentModal');
         await loadAppointments();
         await updateDashboard();
@@ -383,8 +384,14 @@ async function saveService() {
         preco: parseFloat(document.getElementById('servicePrice').value),
         duracao_estimada_minutos: parseInt(document.getElementById('serviceDuration').value),
         descricao: document.getElementById('serviceDescription').value || null,
-        ativo: true 
+        ativo: true // Default
     };
+    
+    if (isEditing) {
+        // Se está a editar, preserva o estado 'ativo' atual
+        const service = currentServices.find(s => s.id == id);
+        serviceData.ativo = service.ativo;
+    }
 
     if (!serviceData.nome || isNaN(serviceData.preco) || isNaN(serviceData.duracao_estimada_minutos)) {
         return showToast("Nome, Preço e Duração são obrigatórios.", "error");
@@ -410,19 +417,29 @@ async function saveService() {
     }
 }
 
-async function deleteService(id) {
-     if (!confirm('DESATIVAR este serviço? (Ele não será apagado, apenas ocultado)')) return;
-     showLoading();
-     try {
-         await window.API.adminDeleteService(id);
-         showToast('Serviço desativado!', 'success');
-         await loadServices(); 
-     } catch (error) {
-         console.error("Erro ao desativar serviço:", error);
-         showToast(`Erro: ${error.message}`, 'error');
-     } finally {
-         hideLoading();
-     }
+async function toggleServiceActive(id) {
+    const service = currentServices.find(s => s.id == id);
+    if (!service) return showToast("Serviço não encontrado.", "error");
+
+    const newState = !service.ativo;
+    const actionText = newState ? 'ATIVAR' : 'DESATIVAR';
+
+    if (!confirm(`Tem a certeza que quer ${actionText} este serviço?`)) return;
+     
+    showLoading();
+    try {
+        const serviceData = { ...service, ativo: newState };
+        await window.API.adminUpdateService(id, serviceData);
+        
+        showToast(`Serviço ${newState ? 'ativado' : 'desativado'}!`, 'success');
+        await loadServices(); 
+        
+    } catch (error) {
+        console.error("Erro ao alterar estado do serviço:", error);
+        showToast(`Erro: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
 }
 
 function editClient(id) {
@@ -451,7 +468,7 @@ async function saveClient() {
          nome: document.getElementById('clientName').value,
          email: document.getElementById('clientEmail').value,
          telefone: document.getElementById('clientPhone').value || null,
-         tipo_usuario: 'cliente', // Admin não deve criar outros admins por aqui
+         tipo_usuario: 'cliente',
          senha: document.getElementById('clientPassword').value || null
      };
      
@@ -466,7 +483,7 @@ async function saveClient() {
      showLoading();
      try {
         if (isEditing) {
-            if (!clientData.senha) delete clientData.senha; // Não envia senha se estiver vazia
+            if (!clientData.senha) delete clientData.senha;
             await window.API.adminUpdateClient(id, clientData);
         } else {
             await window.API.adminCreateClient(clientData);
@@ -533,8 +550,8 @@ async function updateDashboard() {
             todayAppointments.forEach(app => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td data-label="Cliente">${getClientName(app.id_usuario)}</td>
-                    <td data-label="Serviço">${getServiceName(app.id_servico)}</td>
+                    <td data-label="Cliente">${app.usuario_nome || getClientName(app.id_usuario)}</td>
+                    <td data-label="Serviço">${app.servico_nome || getServiceName(app.id_servico)}</td>
                     <td data-label="Data">${formatDate(app.data_hora_inicio)}</td>
                     <td data-label="Horário">${formatTime(app.data_hora_inicio)}</td>
                     <td data-label="Status">${getStatusBadge(app.status)}</td>
@@ -562,7 +579,6 @@ function showSection(sectionId) {
     };
     document.getElementById('pageTitle').textContent = titles[sectionId] || 'Painel';
 
-    // Carrega os dados da secção ativa
     switch(sectionId) {
         case 'appointments': loadAppointments(); break;
         case 'services': loadServices(); break;
@@ -587,7 +603,6 @@ async function init() {
     document.getElementById('pageTitle').textContent = `Bem-vindo(a), ${user.nome}!`;
     
     showLoading();
-    // Carrega dados essenciais para os modais
     await loadServices();
     await loadClients();
     hideLoading();
@@ -691,6 +706,6 @@ if (document.readyState === 'loading') {
 window.editAppointment = editAppointment;
 window.deleteAppointment = deleteAppointment;
 window.editService = editService;
-window.deleteService = deleteService;
+window.toggleServiceActive = toggleServiceActive;
 window.editClient = editClient;
 window.deleteClient = deleteClient;
