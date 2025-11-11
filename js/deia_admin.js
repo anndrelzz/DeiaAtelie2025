@@ -92,33 +92,25 @@ function closeModal(modalId) {
 
 async function loadServices() {
     console.log("A carregar serviços da API...");
-    showLoading();
     try {
         const services = await window.API.adminFetchServices();
         currentServices = services;
         console.log("Serviços carregados:", currentServices);
-        renderServicesGrid(); // <-- CORREÇÃO ESTÁ AQUI
     } catch (error) {
         console.error("Erro ao carregar serviços:", error);
         showToast(`Erro ao carregar serviços: ${error.message}`, 'error');
-    } finally {
-        hideLoading();
     }
 }
 
 async function loadClients() {
     console.log("A carregar clientes da API...");
-    showLoading();
     try {
         const clients = await window.API.adminFetchClients();
         currentClients = clients;
         console.log("Clientes carregados:", currentClients);
-        renderClientsTable(); // <-- CORREÇÃO ESTÁ AQUI
     } catch (error) {
         console.error("Erro ao carregar clientes:", error);
         showToast(`Erro ao carregar clientes: ${error.message}`, 'error');
-    } finally {
-        hideLoading();
     }
 }
 
@@ -292,10 +284,6 @@ async function editAppointment(id) {
 async function saveAppointment() {
     const id = document.getElementById('appointmentId').value;
     const isEditing = !!id;
-
-    if (!isEditing) {
-        return showToast("A criação de novos agendamentos pelo admin ainda não está implementada.", "info");
-    }
     
     const dateStr = document.getElementById('appointmentDate').value;
     const timeStr = document.getElementById('appointmentTime').value;
@@ -326,8 +314,14 @@ async function saveAppointment() {
 
     showLoading();
     try {
-        await window.API.adminUpdateAppointment(id, appointmentData);
-        showToast(`Agendamento atualizado!`, 'success');
+        if (isEditing) {
+            await window.API.adminUpdateAppointment(id, appointmentData);
+            showToast(`Agendamento atualizado!`, 'success');
+        } else {
+            await window.API.adminCreateAppointment(appointmentData);
+            showToast(`Agendamento CRIADO!`, 'success');
+        }
+        
         closeModal('appointmentModal');
         await loadAppointments();
         await updateDashboard();
@@ -514,12 +508,14 @@ async function updateDashboard() {
     console.log("A atualizar Dashboard...");
     
     showLoading();
-    // Garante que os dados estão carregados antes de mostrar o dashboard
     if (currentAppointments.length === 0 || currentClients.length === 0 || currentServices.length === 0) {
         await loadServices();
         await loadClients();
-        await loadAppointments(); // loadAppointments já tem hideLoading()
+        await loadAppointments();
     } else {
+        // Se os dados já estão carregados, apenas renderiza
+        renderAppointmentsTable();
+        renderClientsTable();
         hideLoading();
     }
 

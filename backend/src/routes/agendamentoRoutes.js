@@ -5,7 +5,8 @@ const {
   listAll,
   get,
   update,
-  remove 
+  remove,
+  adminCreate
 } = require('../controllers/agendamentoController');
 const { requireAuth, requireAdmin } = require('../middlewares/auth');
 
@@ -14,6 +15,7 @@ router.post('/', requireAuth, create);
 router.get('/me', requireAuth, listMine);
 
 // --- Rotas do Admin ---
+router.post('/admin', requireAuth, requireAdmin, adminCreate);
 router.get('/', requireAuth, requireAdmin, listAll);
 router.get('/:id', requireAuth, requireAdmin, get);
 router.put('/:id', requireAuth, requireAdmin, update);

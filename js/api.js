@@ -29,6 +29,7 @@ async function apiFetch(path, { method = "GET", body, headers } = {}) {
   return data;
 }
 
+// --- Auth (Cliente & Admin) ---
 async function registerUser({ nome, email, senha, tipo_usuario = "cliente", telefone = null }) {
   const data = await apiFetch("/api/auth/register", { method: "POST", body: { nome, email, senha, tipo_usuario, telefone } });
   setAuth(data.token, data.user); return data;
@@ -43,6 +44,7 @@ async function loginAdmin(payload) {
   return data;
 }
 
+// --- Cliente ---
 async function fetchServices() { return apiFetch("/api/servicos"); }
 async function fetchAgendaConfig() { return apiFetch("/api/agenda"); }
 async function createAppointment({ id_servico, inicioISO, fimISO, observacoes }) {
@@ -53,6 +55,7 @@ async function createAppointment({ id_servico, inicioISO, fimISO, observacoes })
 }
 async function fetchMyAppointments() { return apiFetch("/api/agendamentos/me"); }
 
+// --- Admin: Serviços ---
 async function adminFetchServices() {
   return apiFetch("/api/servicos/admin/all");
 }
@@ -66,6 +69,7 @@ async function adminDeleteService(id) {
   return apiFetch(`/api/servicos/${id}`, { method: "DELETE" });
 }
 
+// --- Admin: Clientes (Usuários) ---
 async function adminFetchClients() {
   return apiFetch("/api/usuarios");
 }
@@ -79,6 +83,10 @@ async function adminDeleteClient(id) {
   return apiFetch(`/api/usuarios/${id}`, { method: "DELETE" });
 }
 
+// --- Admin: Agendamentos ---
+async function adminCreateAppointment(data) {
+  return apiFetch("/api/agendamentos/admin", { method: "POST", body: data });
+}
 async function adminFetchAppointments() {
   return apiFetch("/api/agendamentos");
 }
@@ -107,6 +115,7 @@ window.API = Object.freeze({
   adminUpdateClient,
   adminDeleteClient,
   
+  adminCreateAppointment,
   adminFetchAppointments,
   adminUpdateAppointment,
   adminDeleteAppointment
