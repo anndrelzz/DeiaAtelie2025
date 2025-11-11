@@ -38,6 +38,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function localToISO(dateStr, timeStr) {
+        if (!dateStr || !timeStr) return null;
+        return `${dateStr}T${timeStr}:00.000Z`;
+    }
+
     function toggleAuthMode() {
         isLoginMode = !isLoginMode;
         if (isLoginMode) {
