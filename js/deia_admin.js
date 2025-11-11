@@ -92,25 +92,33 @@ function closeModal(modalId) {
 
 async function loadServices() {
     console.log("A carregar serviços da API...");
+    showLoading();
     try {
         const services = await window.API.adminFetchServices();
         currentServices = services;
         console.log("Serviços carregados:", currentServices);
+        renderServicesGrid();
     } catch (error) {
         console.error("Erro ao carregar serviços:", error);
         showToast(`Erro ao carregar serviços: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
     }
 }
 
 async function loadClients() {
     console.log("A carregar clientes da API...");
+    showLoading();
     try {
         const clients = await window.API.adminFetchClients();
         currentClients = clients;
         console.log("Clientes carregados:", currentClients);
+        renderClientsTable(); // <-- CORREÇÃO
     } catch (error) {
         console.error("Erro ao carregar clientes:", error);
         showToast(`Erro ao carregar clientes: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
     }
 }
 
@@ -513,7 +521,6 @@ async function updateDashboard() {
         await loadClients();
         await loadAppointments();
     } else {
-        // Se os dados já estão carregados, apenas renderiza
         renderAppointmentsTable();
         renderClientsTable();
         hideLoading();
@@ -575,6 +582,7 @@ function showSection(sectionId) {
         'services': 'Serviços', 'clients': 'Clientes'
     };
     document.getElementById('pageTitle').textContent = titles[sectionId] || 'Painel';
+
 
     switch(sectionId) {
         case 'appointments': loadAppointments(); break;
