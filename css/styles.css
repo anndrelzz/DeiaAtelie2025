@@ -903,3 +903,45 @@ body {
     gap: 1.5rem;
     justify-content: center; /* CENTRALIZA OS ITENS HORIZONTALMENTE */
 }
+
+.horarios-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(229, 207, 220, 0.3);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+}
+
+.horarios-container p {
+    grid-column: 1 / -1; /* Ocupa a linha toda */
+    text-align: center;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+    padding: 1rem 0;
+}
+
+.btn-horario {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    border-radius: 0.25rem;
+    background: var(--background);
+    color: var(--foreground);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-horario:hover {
+    background: var(--muted);
+}
+
+.btn-horario.selected {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
+}

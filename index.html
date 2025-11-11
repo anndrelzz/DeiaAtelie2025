@@ -49,7 +49,7 @@
                         Transformamos suas ideias em realidade através da arte da costura. 
                         Cada peça é única, feita com amor e dedicação especialmente para você.
                     </p>
-                    <button class="btn btn-primary btn-lg">
+                    <button class="btn btn-primary btn-lg" id="btn-agendar-hero">
                         Agende seu Atendimento
                     </button>
                 </div>
@@ -348,6 +348,50 @@
         </div>
     </div>
 
+    <div id="agendamento-modal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="agendamento-modal-title">Novo Agendamento</h2>
+                <button id="agendamento-modal-close" class="modal-close">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="agendamento-form" class="modal-form">
+                <div class="form-group">
+                    <label for="ag-servico">Serviço</label>
+                    <select id="ag-servico" class="form-control" required>
+                        <option value="">Carregando serviços...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="ag-data">Data</label>
+                    <input type="date" id="ag-data" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Horários disponíveis</label>
+                    <div id="ag-horarios" class="horarios-container">
+                        <p>Selecione um serviço e uma data.</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ag-observacoes">Observações (Opcional)</label>
+                    <textarea id="ag-observacoes" class="form-control" rows="2" placeholder="Ex: Calça jeans azul para bainha..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg btn-full">
+                    <span id="ag-submit-text">Confirmar Agendamento</span>
+                </button>
+            </form>
+        </div>
+    </div>
     <script src="js/main.js"></script>
     <script src="js/api.js"></script>
 </body>
