@@ -2,7 +2,6 @@ let currentServices = [];
 let currentClients = [];
 let currentAppointments = [];
 
-// --- Funções Utilitárias ---
 function formatCurrency(value) {
     const numValue = Number(value);
     if (isNaN(numValue)) return 'R$ --,--';
@@ -65,7 +64,6 @@ function localToISO(dateStr, timeStr) {
     return `${dateStr}T${timeStr}:00.000Z`;
 }
 
-// --- Funções de Loading e Modal ---
 function showLoading() { document.getElementById('loadingOverlay')?.classList.remove('d-none'); }
 function hideLoading() { document.getElementById('loadingOverlay')?.classList.add('d-none'); }
 function showToast(message, type = 'info') { 
@@ -92,28 +90,35 @@ function closeModal(modalId) {
     }
 }
 
-// --- Funções de Carregamento de Dados (Reais) ---
 async function loadServices() {
     console.log("A carregar serviços da API...");
+    showLoading();
     try {
         const services = await window.API.adminFetchServices();
         currentServices = services;
         console.log("Serviços carregados:", currentServices);
+        renderServicesGrid(); // <-- CORREÇÃO ESTÁ AQUI
     } catch (error) {
         console.error("Erro ao carregar serviços:", error);
         showToast(`Erro ao carregar serviços: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
     }
 }
 
 async function loadClients() {
     console.log("A carregar clientes da API...");
+    showLoading();
     try {
         const clients = await window.API.adminFetchClients();
         currentClients = clients;
         console.log("Clientes carregados:", currentClients);
+        renderClientsTable(); // <-- CORREÇÃO ESTÁ AQUI
     } catch (error) {
         console.error("Erro ao carregar clientes:", error);
         showToast(`Erro ao carregar clientes: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
     }
 }
 
@@ -133,7 +138,6 @@ async function loadAppointments() {
     }
 }
 
-// --- Populating Selects ---
 async function updateClientOptions(selectId = 'appointmentClient', selectedId = null) {
     const select = document.getElementById(selectId);
     if (!select) return;
@@ -151,7 +155,6 @@ async function updateServiceOptions(selectId = 'appointmentService', selectedId 
      if (!select) return;
     select.innerHTML = '<option value="">Selecione um serviço</option>';
     currentServices.forEach(service => {
-        // Mostra apenas serviços ativos no modal de agendamento
         if(service.ativo) {
             const option = document.createElement('option');
             option.value = service.id; 
@@ -161,8 +164,6 @@ async function updateServiceOptions(selectId = 'appointmentService', selectedId 
         }
     });
 }
-
-// --- Funções de Renderização (Usam dados reais) ---
 
 function renderAppointmentsTable() {
     const tbody = document.getElementById('appointmentsTable');
@@ -208,9 +209,10 @@ function renderServicesGrid() {
     currentServices.forEach(service => {
         const card = document.createElement('div');
         card.className = 'service-card';
+        
         const isActive = service.ativo;
         if (!isActive) {
-            card.style.opacity = '0.6'; // Deixa o card inativo mais apagado
+            card.style.opacity = '0.6';
         }
 
         card.innerHTML = `
@@ -265,9 +267,6 @@ function renderClientsTable() {
     });
 }
 
-
-// --- Funções CRUD (Ações Reais) ---
-
 async function editAppointment(id) {
     const app = currentAppointments.find(a => a.id == id);
     if (!app) return showToast("Agendamento não encontrado.", "error");
@@ -295,8 +294,6 @@ async function saveAppointment() {
     const isEditing = !!id;
 
     if (!isEditing) {
-        // A API de admin não suporta CRIAÇÃO de agendamentos (só o cliente)
-        // A API de cliente (createAppointment) requer um ID de utilizador logado
         return showToast("A criação de novos agendamentos pelo admin ainda não está implementada.", "info");
     }
     
@@ -383,11 +380,10 @@ async function saveService() {
         preco: parseFloat(document.getElementById('servicePrice').value),
         duracao_estimada_minutos: parseInt(document.getElementById('serviceDuration').value),
         descricao: document.getElementById('serviceDescription').value || null,
-        ativo: true // Default
+        ativo: true
     };
     
     if (isEditing) {
-        // Se está a editar, preserva o estado 'ativo' atual
         const service = currentServices.find(s => s.id == id);
         serviceData.ativo = service.ativo;
     }
@@ -416,7 +412,7 @@ async function saveService() {
     }
 }
 
-async function toggleServiceActive(id) { 
+async function toggleServiceActive(id) {
     const service = currentServices.find(s => s.id == id);
     if (!service) return showToast("Serviço não encontrado.", "error");
 
@@ -427,11 +423,7 @@ async function toggleServiceActive(id) {
      
     showLoading();
     try {
-        const serviceData = {
-            ...service, // Mantém os dados antigos
-            ativo: newState // Muda o estado
-        };
-        
+        const serviceData = { ...service, ativo: newState };
         await window.API.adminUpdateService(id, serviceData);
         
         showToast(`Serviço ${newState ? 'ativado' : 'desativado'}!`, 'success');
@@ -518,11 +510,18 @@ async function deleteClient(id) {
      }
 }
 
-// --- Dashboard Update ---
 async function updateDashboard() {
     console.log("A atualizar Dashboard...");
     
-    if (currentAppointments.length === 0) await loadAppointments();
+    showLoading();
+    // Garante que os dados estão carregados antes de mostrar o dashboard
+    if (currentAppointments.length === 0 || currentClients.length === 0 || currentServices.length === 0) {
+        await loadServices();
+        await loadClients();
+        await loadAppointments(); // loadAppointments já tem hideLoading()
+    } else {
+        hideLoading();
+    }
 
     const today = new Date().toISOString().split('T')[0];
     const thisMonth = new Date().toISOString().slice(0, 7);
@@ -565,7 +564,6 @@ async function updateDashboard() {
     }
 }
 
-// --- Navigation and Setup ---
 function showSection(sectionId) {
     console.log("A mostrar secção:", sectionId);
     document.querySelectorAll('.content-section').forEach(section => { section.classList.remove('active'); });
@@ -590,7 +588,6 @@ function showSection(sectionId) {
     }
 }
 
-// --- Init Function ---
 async function init() {
     console.log("A inicializar painel admin (MODO REAL)...");
     
@@ -608,6 +605,7 @@ async function init() {
     showLoading();
     await loadServices();
     await loadClients();
+    await loadAppointments();
     hideLoading();
 
     console.log("A configurar Event Listeners...");
@@ -706,9 +704,9 @@ if (document.readyState === 'loading') {
     init();
 }
 
+window.editAppointment = editAppointment;
+window.deleteAppointment = deleteAppointment;
 window.editService = editService;
 window.toggleServiceActive = toggleServiceActive;
 window.editClient = editClient;
 window.deleteClient = deleteClient;
-window.editAppointment = editAppointment;
-window.deleteAppointment = deleteAppointment;
