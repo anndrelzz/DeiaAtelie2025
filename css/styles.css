@@ -986,6 +986,11 @@ body {
   color: #555;
 }
 
+#meus-agendamentos-conteudo {
+  margin-top: -30px;
+  margin-bottom: 18px;
+}
+
 /* Observações */
 .appointment-notes {
   margin-top: 6px;
