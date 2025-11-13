@@ -946,3 +946,74 @@ body {
   color: var(--primary-foreground);
   border-color: var(--primary);
 }
+
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.appointment-item {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  max-width: 480px;
+}
+
+.appointment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.appointment-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f1f0ff;
+  color: #5a3d9f;
+}
+
+.appointment-body span {
+  display: block;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Observações */
+.appointment-notes {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #777;
+}
+
+/* pendente */
+.appointment-status-pendente .appointment-badge {
+  background: #fff7e0;
+  color: #a66a00;
+}
+
+/* confirmado */
+.appointment-status-confirmado .appointment-badge {
+  background: #e3f8ff;
+  color: #006d92;
+}
+
+/* concluído */
+.appointment-status-concluido .appointment-badge,
+.appointment-status-concluído .appointment-badge {
+  background: #e5f8ec;
+  color: #1b7a3f;
+}
+
+/* cancelado */
+.appointment-status-cancelado .appointment-badge {
+  background: #ffe5e5;
+  color: #a12727;
+}
