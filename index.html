@@ -34,6 +34,9 @@
                             <circle cx="12" cy="7" r="4"/>
                         </svg>
                     </button>
+                    <button id="menu-btn" class="menu-trigger-btn" aria-label="Menu do Usuário">
+                        ☰
+                    </button>
                 </div>
             </div>
         </div>
@@ -411,5 +414,30 @@
     </div>
     <script src="js/main.js"></script>
     <script src="js/api.js"></script>
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+    
+    <aside id="app-sidebar" class="app-sidebar">
+        <div class="sidebar-header">
+            <h3 class="sidebar-title">Menu Deia Ateliê</h3>
+            <button id="close-btn" class="close-sidebar-btn">&times;</button>
+        </div>
+    
+        <div class="sidebar-user-info">
+            <div class="user-avatar-placeholder">
+                <i class="fas fa-user"></i> <span>👤</span>
+            </div>
+            <p id="sidebar-username" class="user-name">Bem-vindo(a)!</p>
+        </div>
+    
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="perfil.html">👤 Meu Perfil</a></li>
+                <li><a href="#agendamentos">📅 Meus Agendamentos</a></li>
+                <li><a href="#servicos">👗 Serviços</a></li>
+                <li><a href="#contato">📞 Suporte/Contato</a></li>
+                <li class="logout-item"><a href="#" onclick="alert('Funcionalidade de Logout aqui')">🚪 Sair</a></li>
+            </ul>
+        </nav>
+    </aside>
 </body>
 </html>
