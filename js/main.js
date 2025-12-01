@@ -173,7 +173,7 @@ document.addEventListener("DOMContentLoaded", function () {
       try {
         if (isLoginMode) {
           await window.API.loginUser({email, senha});
-          alert("Bem-vindo(a) de volta!");
+          alert("Login realizado com sucesso!");
         } else {
           await window.API.registerUser({nome, email, senha});
           alert("Cadastro realizado com sucesso!");
@@ -254,12 +254,10 @@ document.addEventListener("DOMContentLoaded", function () {
     if (confirm("Tem certeza que deseja sair?")) {
       window.API.logout();
       checkLoginStatus();
-      alert("Você saiu da conta.");
-      window.location.reload(); // Recarrega para limpar estados
+      window.location.reload();
     }
   }
 
-  // --- LÓGICA DE AGENDAMENTO ---
   function localToISO(dateStr, timeStr) {
     if (!dateStr || !timeStr) return null;
     return `${dateStr}T${timeStr}:00.000Z`;
@@ -309,11 +307,9 @@ document.addEventListener("DOMContentLoaded", function () {
     selectedService = servicosCache.find((s) => s.id == servicoId);
     if (!selectedService) return;
 
-    // Ajuste de fuso horário simples (considerando que o input date é local)
-    // O dia da semana deve ser pego corretamente.
-    const dateParts = dataInput.split("-"); // YYYY-MM-DD
+    const dateParts = dataInput.split("-");
     const localDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
-    const diaDaSemana = localDate.getDay(); // 0 = Domingo, 1 = Segunda...
+    const diaDaSemana = localDate.getDay();
 
     const duracaoServico = selectedService.duracao_estimada_minutos;
     const blocosDoDia = agendaConfigCache.filter((b) => b.dia_da_semana === diaDaSemana);
@@ -380,9 +376,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const horaStr = horaBtn.dataset.hora;
     const inicioISO = localToISO(dataStr, horaStr);
 
-    // Cálculo do fim
     const duracao = selectedService.duracao_estimada_minutos;
-    const dataInicioObj = new Date(inicioISO); // Nota: o backend deve tratar o fuso
+    const dataInicioObj = new Date(inicioISO);
     const fimISO = new Date(dataInicioObj.getTime() + duracao * 60000).toISOString();
 
     const submitBtn = agendamentoForm.querySelector('button[type="submit"]');
@@ -393,15 +388,14 @@ document.addEventListener("DOMContentLoaded", function () {
     try {
       await window.API.createAppointment({
         id_servico: parseInt(servicoId),
-        inicioISO: inicioISO, // Envie como string ISO
+        inicioISO: inicioISO,
         fimISO: fimISO,
         observacoes: observacoes || null,
       });
 
-      alert("Agendamento realizado com sucesso!");
+      alert("Agendamento marcado!");
       closeModal(agendamentoModal);
 
-      // Atualiza a lista na sidebar se estiver aberta
       carregarHistoricoAgendamentos();
     } catch (error) {
       console.error("Erro ao criar agendamento:", error);

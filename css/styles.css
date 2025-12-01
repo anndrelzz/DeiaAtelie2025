@@ -1207,10 +1207,10 @@ body {
   width: 100%;
 }
 
-div.appointment-item:first-child {
+div.appointment-card:first-child {
   margin-top: 1em !important;
 }
-/* Botão de Logout dentro do Sidebar */
+
 .btn-logout-small {
   background: transparent;
   border: 1px solid #dc3545;
@@ -1228,7 +1228,6 @@ div.appointment-item:first-child {
   color: white;
 }
 
-/* Garante que o conteúdo ocupe a altura correta */
 .sidebar-view {
   height: 100%;
   display: flex;
