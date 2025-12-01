@@ -1280,3 +1280,36 @@ div.appointment-card:first-child {
     padding: 10px;
   }
 }
+
+.app-sidebar {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+}
+
+.sidebar-header {
+  flex-shrink: 0;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.sidebar-user-info {
+  flex-shrink: 0;
+  padding: 20px;
+  background-color: #fff;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  height: auto !important;
+  padding: 15px;
+  background-color: #f9f9f9;
+}
+
+@media (max-width: 768px) {
+  .app-sidebar {
+    width: 85%;
+    max-width: 350px;
+  }
+}
