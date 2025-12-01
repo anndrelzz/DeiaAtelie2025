@@ -158,26 +158,31 @@ document.addEventListener("DOMContentLoaded", function () {
   if (loginForm) {
     loginForm.addEventListener("submit", async function (e) {
       e.preventDefault();
+
       const formData = new FormData(loginForm);
       const email = formData.get("email");
       const senha = formData.get("password");
       const nome = formData.get("name");
+
       const submitBtn = loginForm.querySelector('button[type="submit"]');
       const originalBtnText = submitBtn.innerHTML;
+
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="spinner"></span> Carregando...';
+      submitBtn.innerHTML = '<span class="spinner"></span> Processando...';
 
       try {
         if (isLoginMode) {
           await window.API.loginUser({email, senha});
-          // alert("Login realizado com sucesso!"); // Removido para ser mais fluido
+          alert("Bem-vindo(a) de volta!");
         } else {
           await window.API.registerUser({nome, email, senha});
-          alert("Cadastro realizado! Bem-vindo(a).");
+          alert("Cadastro realizado com sucesso!");
         }
 
         closeModal(loginModal);
-        checkLoginStatus(); // Atualiza a interface
+
+        checkLoginStatus();
+
         loginForm.reset();
       } catch (error) {
         console.error("Falha no login/registro:", error);

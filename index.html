@@ -438,133 +438,40 @@
         </div>
     </aside>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            console.log("Script carregado!");
-
-            const menuBtn = document.getElementById('menu-btn');
-            const closeBtn = document.getElementById('close-btn');
-            const sidebar = document.getElementById('app-sidebar');
-            const overlay = document.getElementById('sidebar-overlay');
-
-            function openSidebar() {
-                console.log("Abrindo menu...");
-                sidebar.classList.add('active');
-                overlay.classList.add('active');
-            }
-
-            function closeSidebar() {
-                console.log("Fechando menu...");
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-            }
-
-            if (menuBtn) {
-                menuBtn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    openSidebar();
-                });
-            } else {
-                console.error("ERRO: Não achei o botão com id='menu-btn'");
-            }
-
-            if (closeBtn) {
-                closeBtn.addEventListener('click', closeSidebar);
-            }
-
-            if (overlay) {
-                overlay.addEventListener('click', closeSidebar);
-            }
-        });
-    </script>
-    <script>
+        // Script Apenas Visual (Animação do Menu)
         document.addEventListener('DOMContentLoaded', function () {
             const menuBtn = document.getElementById('menu-btn');
             const closeBtn = document.getElementById('close-btn');
             const sidebar = document.getElementById('app-sidebar');
             const overlay = document.getElementById('sidebar-overlay');
 
-            const guestView = document.getElementById('sidebar-guest-view');
-            const loggedView = document.getElementById('sidebar-logged-view');
-            const sidebarLoginBtn = document.getElementById('sidebar-login-btn');
-            const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
-            const sidebarUsername = document.getElementById('sidebar-username');
-
-            const loginModal = document.getElementById('login-modal');
-
-            function updateSidebarState() {
-                const userToken = localStorage.getItem('token');
-
-                let userData = {};
-                try {
-                    userData = JSON.parse(localStorage.getItem('user') || '{}');
-                } catch (e) {
-                    console.error("Erro ao ler dados do usuário:", e);
-                }
-
-                console.log("Status do Token:", userToken);
-
-                if (userToken) {
-                    guestView.style.display = 'none';
-                    loggedView.style.display = 'flex';
-
-                    const nomeExibir = userData.name || userData.nome || "Cliente VIP";
-                    sidebarUsername.textContent = nomeExibir;
-
-                    const containerAgendamentos = document.getElementById('meus-agendamentos-conteudo');
-                    if (containerAgendamentos && typeof carregarMeusAgendamentos === 'function') {
-                        carregarMeusAgendamentos();
-                    } else if (containerAgendamentos && containerAgendamentos.innerHTML.trim() === "") {
-                    }
+            function toggleSidebar(active) {
+                if (active) {
+                    sidebar.classList.add('active');
+                    overlay.classList.add('active');
+                    document.body.style.overflow = 'hidden'; // Trava a rolagem do fundo
                 } else {
-                    guestView.style.display = 'block';
-                    loggedView.style.display = 'none';
-                    sidebarUsername.textContent = 'Visitante';
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = ''; // Destrava
                 }
-            }
-
-            function openSidebar() {
-                updateSidebarState();
-                sidebar.classList.add('active');
-                overlay.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-
-            function closeSidebar() {
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-                document.body.style.overflow = 'auto';
             }
 
             if (menuBtn) {
                 menuBtn.addEventListener('click', function (e) {
                     e.preventDefault();
-                    openSidebar();
+                    toggleSidebar(true);
                 });
             }
 
-            if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
-            if (overlay) overlay.addEventListener('click', closeSidebar);
+            if (closeBtn) closeBtn.addEventListener('click', () => toggleSidebar(false));
+            if (overlay) overlay.addEventListener('click', () => toggleSidebar(false));
 
-            if (sidebarLoginBtn) {
-                sidebarLoginBtn.addEventListener('click', function () {
-                    closeSidebar();
-                    if (loginModal) loginModal.classList.add('active');
-                });
-            }
-
-            if (sidebarLogoutBtn) {
-                sidebarLogoutBtn.addEventListener('click', function () {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-                    alert('Você saiu da conta.');
-                    window.location.reload();
-                });
-            }
-
-            updateSidebarState();
+            // Tecla ESC fecha o menu
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') toggleSidebar(false);
+            });
         });
     </script>
-    </script>
-    </body>
 </body>
 </html>
