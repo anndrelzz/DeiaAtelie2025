@@ -19,13 +19,13 @@ async function isWithinAgenda(inicio, fim) {
   if (isNaN(start) || isNaN(end)) return false;
   if (end <= start) return false;
   if (
-    start.getUTCFullYear() !== end.getUTCFullYear() ||
-    start.getUTCMonth() !== end.getUTCMonth() ||
-    start.getUTCDate() !== end.getUTCDate()
+    start.getFullYear() !== end.getFullYear() || 
+    start.getMonth() !== end.getMonth() ||       
+    start.getDate() !== end.getDate()            
   ) {
     return false;
   }
-  const dow = start.getUTCDay();
+const dow = start.getDay(); 
   const { rows } = await db.query(
     `SELECT hora_inicio, hora_fim
      FROM configuracao_agenda
@@ -33,9 +33,10 @@ async function isWithinAgenda(inicio, fim) {
     [dow]
   );
   if (!rows.length) return false;
-  const toMinutes = (d) => d.getUTCHours() * 60 + d.getUTCMinutes();
+const toMinutes = (d) => d.getHours() * 60 + d.getMinutes(); 
   const sMin = toMinutes(start);
   const eMin = toMinutes(end);
+  
   for (const r of rows) {
     const [h1, m1] = String(r.hora_inicio).split(':').map(Number);
     const [h2, m2] = String(r.hora_fim).split(':').map(Number);
