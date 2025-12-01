@@ -214,7 +214,7 @@ document.addEventListener("DOMContentLoaded", function () {
       try {
         if (isLoginMode) {
           await window.API.loginUser({email, senha});
-          alert("Login realizado com sucesso!");
+          showToast("Login realizado com sucesso!");
         } else {
           await window.API.registerUser({nome, email, senha});
           showToast("Sucesso!", "Cadastro realizado! Bem-vindo(a).", "success");
