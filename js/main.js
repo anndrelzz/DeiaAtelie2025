@@ -302,7 +302,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function localToISO(dateStr, timeStr) {
     if (!dateStr || !timeStr) return null;
-    return `${dateStr}T${timeStr}:00.000Z`;
+    return `${dateStr}T${timeStr}:00`;
   }
 
   async function openAgendamentoModal() {
