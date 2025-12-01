@@ -1236,14 +1236,14 @@ div.appointment-item:first-child {
 }
 
 .modal {
-  z-index: 9999 !important;
+  z-index: 10000 !important;
 }
 
 .modal-backdrop {
-  z-index: 9998 !important;
+  z-index: 10001 !important;
 }
 
-.app-sidebar,
-.sidebar-overlay {
-  z-index: 2000;
+.modal-content {
+  z-index: 10002 !important;
+  position: relative;
 }
