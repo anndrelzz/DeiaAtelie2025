@@ -1210,3 +1210,27 @@ body {
 div.appointment-item:first-child {
   margin-top: 1em !important;
 }
+/* Botão de Logout dentro do Sidebar */
+.btn-logout-small {
+  background: transparent;
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s;
+}
+
+.btn-logout-small:hover {
+  background: #dc3545;
+  color: white;
+}
+
+/* Garante que o conteúdo ocupe a altura correta */
+.sidebar-view {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
