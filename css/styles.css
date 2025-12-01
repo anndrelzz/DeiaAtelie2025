@@ -1313,3 +1313,88 @@ div.appointment-card:first-child {
     max-width: 350px;
   }
 }
+
+/* --- TOAST NOTIFICATIONS (Alertas Bonitos) --- */
+
+#toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 11000; /* Acima de tudo, inclusive dos modais */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  min-width: 250px;
+  max-width: 350px;
+  background-color: #fff;
+  border-left: 5px solid #333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: slideInRight 0.3s ease forwards;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.toast-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.toast-title {
+  font-weight: bold;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.toast-message {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.toast.success {
+  border-left-color: #2ecc71;
+}
+
+.toast.success .toast-title {
+  color: #2ecc71;
+}
+
+.toast.error {
+  border-left-color: #e74c3c;
+}
+.toast.error .toast-title {
+  color: #e74c3c;
+}
+
+.toast.info {
+  border-left-color: #3498db;
+}
+.toast.info .toast-title {
+  color: #3498db;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOutRight {
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}

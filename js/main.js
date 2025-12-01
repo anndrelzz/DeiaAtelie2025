@@ -1,4 +1,45 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // --- FUNÇÃO DE ALERTAS PERSONALIZADOS (TOAST) ---
+  function showToast(title, message, type = "info") {
+    // 1. Garante que o container existe
+    let container = document.getElementById("toast-container");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "toast-container";
+      document.body.appendChild(container);
+    }
+
+    // 2. Cria o elemento do Toast
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+
+    // Ícone baseado no tipo (opcional, mas fica legal)
+    let icon = "";
+    if (type === "success") icon = "✅ ";
+    if (type === "error") icon = "❌ ";
+    if (type === "info") icon = "ℹ️ ";
+
+    toast.innerHTML = `
+        <div class="toast-content">
+            <span class="toast-title">${icon}${title}</span>
+            <span class="toast-message">${message}</span>
+        </div>
+    `;
+
+    // 3. Adiciona ao container
+    container.appendChild(toast);
+
+    // 4. Remove automaticamente após 4 segundos
+    setTimeout(() => {
+      toast.style.animation = "fadeOutRight 0.5s ease forwards";
+      toast.addEventListener("animationend", () => {
+        toast.remove();
+      });
+    }, 4000);
+
+    // Permite fechar clicando nele
+    toast.addEventListener("click", () => toast.remove());
+  }
   // --- ELEMENTOS GERAIS ---
   const meusAgSection = document.getElementById("meus-agendamentos");
   const meusAgContainer = document.getElementById("meus-agendamentos-conteudo");
@@ -176,7 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
           alert("Login realizado com sucesso!");
         } else {
           await window.API.registerUser({nome, email, senha});
-          alert("Cadastro realizado com sucesso!");
+          showToast("Sucesso!", "Cadastro realizado! Bem-vindo(a).", "success");
         }
 
         closeModal(loginModal);
@@ -186,7 +227,7 @@ document.addEventListener("DOMContentLoaded", function () {
         loginForm.reset();
       } catch (error) {
         console.error("Falha no login/registro:", error);
-        alert(`Erro: ${error.message}`);
+        showToast("Erro no Login", error.message, "error");
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalBtnText;
@@ -365,7 +406,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const observacoes = document.getElementById("ag-observacoes").value;
 
     if (!servicoId || !dataStr || !horaBtn) {
-      alert("Por favor, selecione um serviço, data e horário.");
+      showToast("Atenção", "Selecione serviço, data e horário para continuar.", "info");
       return;
     }
 
@@ -393,7 +434,7 @@ document.addEventListener("DOMContentLoaded", function () {
         observacoes: observacoes || null,
       });
 
-      alert("Agendamento marcado!");
+      showToast("Agendado!", "Seu horário foi reservado com sucesso.", "success");
       closeModal(agendamentoModal);
 
       carregarHistoricoAgendamentos();
