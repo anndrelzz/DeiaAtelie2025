@@ -187,12 +187,15 @@ document.addEventListener("DOMContentLoaded", function () {
       } catch (error) {
         console.error("Falha detalhada:", error);
         let mensagemErro = error.message;
-        if (error.message === 'Failed to fetch' || error.message.includes('NetworkError')) {
-             mensagemErro = "Erro de Conexão: O celular não conseguiu alcançar o servidor. Verifique se o endereço da API está correto (não pode ser localhost).";
+        if (error.message === "Failed to fetch" || error.message.includes("NetworkError")) {
+          mensagemErro =
+            "Erro de Conexão: O celular não conseguiu alcançar o servidor. Verifique se o endereço da API está correto (não pode ser localhost).";
         }
-
         alert(`Ops! Deu erro:\n${mensagemErro}`);
       } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+      }
     });
   }
 
