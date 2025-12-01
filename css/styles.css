@@ -1206,3 +1206,7 @@ body {
   font-size: 0.8rem;
   width: 100%;
 }
+
+div.appointment-item:first-child {
+  margin-top: 1em !important;
+}
