@@ -1,5 +1,7 @@
 const db = require('../database/db');
 
+// Funções auxiliares devem estar definidas no topo do arquivo do serviço:
+
 async function hasOverlap(id_servico, inicio, fim) {
   const { rows } = await db.query(
     `SELECT 1 FROM agendamentos
@@ -18,14 +20,20 @@ async function isWithinAgenda(inicio, fim) {
   const end = new Date(fim);
   if (isNaN(start) || isNaN(end)) return false;
   if (end <= start) return false;
+  
+  // CORREÇÃO DE FUSO HORÁRIO (Usando a hora LOCAL do servidor para checar a agenda)
+  // O objeto 'start' e 'end' contém o momento em UTC, mas 'getFullYear()', 'getMonth()', etc.
+  // o convertem para o fuso local do servidor para a comparação da agenda.
   if (
-    start.getFullYear() !== end.getFullYear() || 
-    start.getMonth() !== end.getMonth() ||       
-    start.getDate() !== end.getDate()            
+    start.getFullYear() !== end.getFullYear() ||
+    start.getMonth() !== end.getMonth() ||
+    start.getDate() !== end.getDate()
   ) {
     return false;
   }
-const dow = start.getDay(); 
+  
+  // Obtém o dia da semana no fuso horário LOCAL do servidor
+  const dow = start.getDay(); 
   const { rows } = await db.query(
     `SELECT hora_inicio, hora_fim
      FROM configuracao_agenda
@@ -33,7 +41,9 @@ const dow = start.getDay();
     [dow]
   );
   if (!rows.length) return false;
-const toMinutes = (d) => d.getHours() * 60 + d.getMinutes(); 
+
+  // Usa as horas e minutos LOCAIS para a comparação
+  const toMinutes = (d) => d.getHours() * 60 + d.getMinutes(); 
   const sMin = toMinutes(start);
   const eMin = toMinutes(end);
   
@@ -50,7 +60,8 @@ const toMinutes = (d) => d.getHours() * 60 + d.getMinutes();
 }
 
 async function create({ id_usuario, id_servico, data_hora_inicio, data_hora_fim, observacoes }) {
-  const okAgenda = await isWithinAgenda(data_hora_inicio, data_hora_fim);
+  // A chamada às funções auxiliares está aqui, no escopo correto
+  const okAgenda = await isWithinAgenda(data_hora_inicio, data_hora_fim); 
   if (!okAgenda) {
     const err = new Error('Fora do horário permitido na agenda ou intervalo inválido.');
     err.code = 'AGENDA_WINDOW';
