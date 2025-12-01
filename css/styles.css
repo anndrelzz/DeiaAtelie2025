@@ -1172,3 +1172,37 @@ body {
   }
 }
 /* --- FIM DO MENU LATERAL --- */
+/* Ajuste para agendamentos DENTRO do menu lateral */
+.app-sidebar .appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Redefinindo o card de agendamento para caber no menu */
+.app-sidebar .appointment-card {
+  background: #f8f9fa;
+  border: 1px solid #eee;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 4px solid #d4af37; /* Dourado */
+  font-size: 0.9rem;
+}
+
+.app-sidebar .appointment-card h4 {
+  margin: 0 0 5px 0;
+  font-size: 1rem;
+  color: #333;
+}
+
+.app-sidebar .appointment-card p {
+  margin: 2px 0;
+  color: #555;
+}
+
+.app-sidebar .btn-cancelar {
+  margin-top: 8px;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  width: 100%;
+}

@@ -280,18 +280,6 @@
         </section>
     </main>
 
-        <section id="meus-agendamentos" class="section">
-            <div class="container">
-                <div class="section-header">
-                    <h2>Meus <span class="gradient-text">Agendamentos</span></h2>
-                    <p>Acompanhe os atendimentos que você já marcou com o ateliê.</p>
-                </div>
-                <div id="meus-agendamentos-conteudo" class="appointments-list">
-                    <p>Faça login para visualizar seus agendamentos.</p>
-                </div>
-            </div>
-        </section>
-
         <footer class="footer">
             <div class="container">
                 <div class="footer-content">
@@ -418,22 +406,24 @@
     
     <aside id="app-sidebar" class="app-sidebar">
         <div class="sidebar-header">
-            <h3 class="sidebar-title">Menu Deia Ateliê</h3>
+            <h3 class="sidebar-title">Menu do Usuário</h3>
             <button id="close-btn" class="close-sidebar-btn">&times;</button>
         </div>
     
         <div class="sidebar-user-info">
             <div class="user-avatar-placeholder">
-                <i class="fas fa-user"></i> <span>👤</span>
+                <span>👤</span>
             </div>
             <p id="sidebar-username" class="user-name">Bem-vindo(a)!</p>
         </div>
     
-        <nav class="sidebar-nav">
-            <ul>
-                <li><a href="#agendamentos">📅 Meus Agendamentos</a></li>
-            </ul>
-        </nav>
+        <div class="sidebar-content" style="padding: 15px; overflow-y: auto; height: calc(100% - 150px);">
+            <h4 style="margin-bottom: 15px;">Meus Agendamentos</h4>
+    
+            <div id="meus-agendamentos-conteudo" class="appointments-list">
+                <p style="font-size: 0.9rem; color: #666;">Faça login para ver seus agendamentos.</p>
+            </div>
+        </div>
     </aside>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
