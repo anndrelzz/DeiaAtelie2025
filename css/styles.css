@@ -1251,6 +1251,11 @@ div.appointment-card:first-child {
   background: transparent;
   border: 1px solid hsla(340, 60%, 70%, 0.2);
   color: var(--primary);
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1001;
 }
 
 #menu-btn:hover {
