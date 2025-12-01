@@ -439,5 +439,45 @@
             </ul>
         </nav>
     </aside>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log("Script carregado!");
+
+            const menuBtn = document.getElementById('menu-btn');
+            const closeBtn = document.getElementById('close-btn');
+            const sidebar = document.getElementById('app-sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+
+            function openSidebar() {
+                console.log("Abrindo menu...");
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+            }
+
+            function closeSidebar() {
+                console.log("Fechando menu...");
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+
+            if (menuBtn) {
+                menuBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    openSidebar();
+                });
+            } else {
+                console.error("ERRO: Não achei o botão com id='menu-btn'");
+            }
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeSidebar);
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', closeSidebar);
+            }
+        });
+    </script>
+    </body>
 </body>
 </html>

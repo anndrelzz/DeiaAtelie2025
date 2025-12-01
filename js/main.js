@@ -413,44 +413,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
   checkLoginStatus();
   initScrollAnimations();
-
-  document.addEventListener("DOMContentLoaded", function () {
-    const menuBtn = document.getElementById("menu-btn");
-    const closeBtn = document.getElementById("close-btn");
-    const sidebar = document.getElementById("app-sidebar");
-    const overlay = document.getElementById("sidebar-overlay");
-
-    function openSidebar() {
-      sidebar.classList.add("active");
-      overlay.classList.add("active");
-      document.body.style.overflow = "hidden";
-    }
-
-    function closeSidebar() {
-      sidebar.classList.remove("active");
-      overlay.classList.remove("active");
-      document.body.style.overflow = "auto";
-    }
-
-    if (menuBtn) {
-      menuBtn.addEventListener("click", function (e) {
-        e.preventDefault();
-        openSidebar();
-      });
-    }
-
-    if (closeBtn) {
-      closeBtn.addEventListener("click", closeSidebar);
-    }
-
-    if (overlay) {
-      overlay.addEventListener("click", closeSidebar);
-    }
-
-    document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape" && sidebar.classList.contains("active")) {
-        closeSidebar();
-      }
-    });
-  });
 });
