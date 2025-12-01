@@ -18,22 +18,23 @@ async function isWithinAgenda(inicio, fim) {
   if (!inicio || !fim) return false;
   const start = new Date(inicio);
   const end = new Date(fim);
-  if (isNaN(start) || isNaN(end)) return false;
-  if (end <= start) return false;
   
-  // CORREÇÃO DE FUSO HORÁRIO (Usando a hora LOCAL do servidor para checar a agenda)
-  // O objeto 'start' e 'end' contém o momento em UTC, mas 'getFullYear()', 'getMonth()', etc.
-  // o convertem para o fuso local do servidor para a comparação da agenda.
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) return false;
+  if (end <= start) return false;
+  const timeZone = 'America/Sao_Paulo';
+  const startBR = new Date(start.toLocaleString('en-US', { timeZone }));
+  const endBR = new Date(end.toLocaleString('en-US', { timeZone }));
+
   if (
-    start.getFullYear() !== end.getFullYear() ||
-    start.getMonth() !== end.getMonth() ||
-    start.getDate() !== end.getDate()
+    startBR.getFullYear() !== endBR.getFullYear() ||
+    startBR.getMonth() !== endBR.getMonth() ||
+    startBR.getDate() !== endBR.getDate()
   ) {
     return false;
   }
   
   // Obtém o dia da semana no fuso horário LOCAL do servidor
-  const dow = start.getDay(); 
+  const dow = startBR.getDay(); // Dia da semana no Brasil
   const { rows } = await db.query(
     `SELECT hora_inicio, hora_fim
      FROM configuracao_agenda
@@ -42,16 +43,17 @@ async function isWithinAgenda(inicio, fim) {
   );
   if (!rows.length) return false;
 
-  // Usa as horas e minutos LOCAIS para a comparação
-  const toMinutes = (d) => d.getHours() * 60 + d.getMinutes(); 
-  const sMin = toMinutes(start);
-  const eMin = toMinutes(end);
-  
+  // Usa as horas convertidas para o Brasil
+  const toMinutes = (d) => d.getHours() * 60 + d.getMinutes();
+  const sMin = toMinutes(startBR);
+  const eMin = toMinutes(endBR);
+
   for (const r of rows) {
     const [h1, m1] = String(r.hora_inicio).split(':').map(Number);
     const [h2, m2] = String(r.hora_fim).split(':').map(Number);
     const wStart = h1 * 60 + m1;
     const wEnd = h2 * 60 + m2;
+    // Validação do intervalo
     if (sMin >= wStart && eMin <= wEnd) {
       return true;
     }
