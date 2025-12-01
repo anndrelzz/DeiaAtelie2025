@@ -121,6 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
           const horaInicioStr = inicio.toLocaleTimeString("pt-BR", {
             hour: "2-digit",
             minute: "2-digit",
+            hour12: false,
           });
 
           const servicoNome = a.servico_nome || "Serviço";
