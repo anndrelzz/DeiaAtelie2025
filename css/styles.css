@@ -1234,3 +1234,16 @@ div.appointment-item:first-child {
   display: flex;
   flex-direction: column;
 }
+
+.modal {
+  z-index: 9999 !important;
+}
+
+.modal-backdrop {
+  z-index: 9998 !important;
+}
+
+.app-sidebar,
+.sidebar-overlay {
+  z-index: 2000;
+}
