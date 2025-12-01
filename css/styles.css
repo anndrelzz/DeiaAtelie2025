@@ -1023,152 +1023,67 @@ body {
   color: #a12727;
 }
 
-/* --- INICIO DO MENU LATERAL (SIDEBAR) --- */
+/* --- ATUALIZAÇÃO DA SIDEBAR PARA AGENDAMENTOS --- */
 
-/* Botão de abrir o menu (flutuante ou no header) */
-.menu-trigger-btn {
-  background-color: transparent;
-  border: 2px solid #333; /* Ajuste a cor conforme seu tema */
-  color: #333;
-  font-size: 24px;
-  padding: 5px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s;
-  z-index: 1000;
-}
-
-.menu-trigger-btn:hover {
-  background-color: #333;
-  color: #fff;
-}
-
-/* Fundo escuro (Overlay) */
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 2000;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease-in-out;
-}
-
-.sidebar-overlay.active {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* A Barra Lateral em si */
 .app-sidebar {
-  position: fixed;
-  top: 0;
-  right: -300px; /* Começa escondida */
-  width: 300px;
-  height: 100vh;
-  background-color: #fff; /* Fundo branco ou cor do ateliê */
-  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-  z-index: 2001;
-  transition: right 0.3s cubic-bezier(0.77, 0.2, 0.05, 1);
+  /* Mantém o que já tinha, mas garante layout flex */
   display: flex;
   flex-direction: column;
+  /* Vamos aumentar um pouquinho a largura para caber os cards */
+  width: 350px;
+  right: -350px;
 }
 
-.app-sidebar.active {
-  right: 0; /* Aparece */
+/* Área de rolagem para os agendamentos */
+.sidebar-content {
+  flex: 1; /* Ocupa o espaço restante */
+  overflow-y: auto; /* Cria barra de rolagem se precisar */
+  padding: 15px;
+  background-color: #f9f9f9;
 }
 
-/* Cabeçalho da Sidebar */
-.sidebar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  background-color: #f4f4f4; /* Cinza claro para destaque */
-  border-bottom: 1px solid #ddd;
-}
-
-.sidebar-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #333;
-  margin: 0;
-}
-
-.close-sidebar-btn {
-  background: none;
+/* Botão de Novo Agendamento dentro do menu */
+.btn-sidebar-action {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #d4af37, #bfa048); /* Dourado */
+  color: white;
   border: none;
-  font-size: 1.5rem;
+  border-radius: 8px;
+  font-weight: bold;
+  margin-bottom: 20px;
   cursor: pointer;
-  color: #666;
-}
-
-/* Área do Usuário */
-.sidebar-user-info {
-  padding: 30px 20px;
-  text-align: center;
-  border-bottom: 1px solid #eee;
-}
-
-.user-avatar-placeholder {
-  width: 80px;
-  height: 80px;
-  background-color: #e2e2e2;
-  border-radius: 50%;
-  margin: 0 auto 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
-  color: #888;
+  gap: 8px;
+  transition: transform 0.2s;
 }
 
-.user-name {
-  font-size: 1.1rem;
-  font-weight: 600;
+.btn-sidebar-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilo simplificado para os cards de agendamento dentro da sidebar */
+/* Isso garante que o card não quebre o layout estreito */
+.agendamento-card-sidebar {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-left: 4px solid #d4af37;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  font-size: 0.9rem;
+}
+
+.agendamento-card-sidebar h4 {
+  margin: 0 0 5px 0;
   color: #333;
-  margin: 0;
 }
 
-/* Lista de Links */
-.sidebar-nav {
-  padding: 20px 0;
-  flex-grow: 1;
+.agendamento-card-sidebar p {
+  margin: 2px 0;
+  color: #666;
+  font-size: 0.85rem;
 }
-
-.sidebar-nav ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.sidebar-nav li a {
-  display: block;
-  padding: 15px 25px;
-  text-decoration: none;
-  color: #444;
-  font-size: 1rem;
-  transition: background 0.2s;
-  border-left: 4px solid transparent;
-}
-
-.sidebar-nav li a:hover {
-  background-color: #f9f9f9;
-  border-left-color: #d4af37; /* Cor Dourada/Ateliê */
-  color: #000;
-}
-
-.logout-item a {
-  color: #d9534f !important; /* Vermelho para sair */
-}
-
-/* Responsividade para celular */
-@media (max-width: 480px) {
-  .app-sidebar {
-    width: 85%; /* Ocupa mais espaço no celular */
-  }
-}
-/* --- FIM DO MENU LATERAL --- */
