@@ -14,8 +14,8 @@
 
 **Acadêmicos:**
 * **André Luiz da Silva Estevão**
-* **Eduardo de Paula Ribeiro**
 * **Erik Kestring**
+* **Gabriel da Silva**
 * **Vytor de Oliveira**
 
 **Orientadores:**
