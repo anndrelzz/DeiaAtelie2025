@@ -1,117 +1,159 @@
 # Sistema de Gerenciamento de Agendamentos – _Deia Ateliê_
 
+![Badge Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
+![Badge PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![HTML](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)&nbsp;
+![CSS](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)&nbsp;
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)&nbsp;
+
+> **PAC Extensionista** – Projeto de Aprendizagem Colaborativa do Curso de Engenharia de Software da Católica de Santa Catarina.
+
+---
+
+## Equipe de Desenvolvimento
+
+**Acadêmicos:**
+* **André Luiz da Silva Estevão**
+* **Eduardo de Paula Ribeiro**
+* **Erik Kestring**
+* **Vytor de Oliveira**
+
+**Orientadores:**
+* Prof. Luiz Carlos Camargo
+* Prof. Claudinei Dias
+
+---
+
 ## Sobre o Projeto
 
 Este projeto tem como objetivo implantar um sistema de gerenciamento de clientes e serviços no **Deia Ateliê**, um ateliê de consertos de roupas localizado em Joinville. A iniciativa visa facilitar o agendamento de horários, melhorar a organização interna e tornar o atendimento ao cliente mais ágil, prático e eficiente.
 
-Além de beneficiar diretamente os clientes e a gestão do ateliê, o projeto também proporciona aos estudantes envolvidos a aplicação prática dos conhecimentos em desenvolvimento de software, por meio do programa **PAC Extensionista**, que conecta soluções acadêmicas a problemas reais da comunidade.
+O software conecta a demanda acadêmica do programa **PAC Extensionista** com um problema real da comunidade, entregando uma solução tecnológica acessível.
 
 ---
 
-## Público Beneficiado
+## Objetivos
 
-O sistema foi desenvolvido pensando nos clientes do **Deia Ateliê**, que buscam ajustes e reparos em roupas. Este público é diversificado em idade e perfil socioeconômico e frequentemente enfrenta dificuldades na hora de agendar atendimentos e descrever os serviços necessários. Com este sistema, os clientes ganham em praticidade, enquanto o ateliê melhora sua organização e produtividade.
+### Objetivo Geral
+Implantar um sistema digital que otimize o processo de agendamento de horários e serviços no **Deia Ateliê**, garantindo um atendimento organizado e eficiente.
 
----
-
-## Objetivo Geral
-
-Implantar um sistema digital que otimize o processo de agendamento de horários e serviços no **Deia Ateliê**, garantindo um atendimento mais organizado, eficiente e satisfatório, tanto para os clientes quanto para o profissional do ateliê.
+### Objetivos Específicos
+* Automatizar o processo de agendamento, eliminando o uso de agendas de papel.
+* Criar um histórico digital de serviços realizados por cliente.
+* Fornecer relatórios de serviços mais procurados para auxiliar na gestão do negócio.
 
 ---
 
 ## Tecnologias Utilizadas
 
-- **Frontend**:
+### Frontend
+* **HTML5 / CSS3**: Estrutura semântica e estilização responsiva.
+* **JavaScript (Vanilla)**: Lógica de interação com a API e manipulação do DOM.
 
-  - **HTML**: Utilizado para estruturar a interface de usuário.
-  - **CSS**: Responsável pela estilização da interface, criando um layout responsivo.
-  - **JavaScript**: Usado para a criação de funcionalidades e puxar informações da API.
+### Backend & Infraestrutura
+* **Node.js**: Ambiente de execução para a API e regras de negócio.
+* **Express**: Framework para criação das rotas e endpoints.
+* **PostgreSQL (Supabase)**: Banco de dados relacional para persistência segura das informações.
+* **Vercel**: Plataforma de hospedagem e deploy contínuo (Serverless).
 
-- **Backend**:
-
-  - **Node.js**: Framework para o desenvolvimento da API, lógica de negócios, criação de endpoints e integração com banco de dados.
-
-- **Banco de Dados**:
-  - **PostgreSQL**: Banco de dados relacional, que vai armazenar dados dos clientes, agendamentos e serviços oferecidos pela estética automotiva, escolhido pela escalabilidade e confiabilidade.
-
----
-
-## Arquitetura MVP
-
-- A arquitetura Model-View-Presenter (MVP) foi escolhida por ser ideal para aplicações com uma interface de usuário interativa e de fluxo simples, como sistemas de agendamento e gestão
+### Segurança
+* **BCrypt**: Criptografia de senhas.
+* **JWT (JSON Web Tokens)**: Autenticação segura de sessões.
 
 ---
 
-## Escopo
+## Arquitetura e Design
 
-O sistema do **Deia Ateliê** tem como objetivo resolver os principais problemas enfrentados por clientes e pela administração do ateliê, trazendo mais organização, praticidade e agilidade no atendimento.
+O projeto segue a arquitetura **MVP (Model-View-Presenter)** adaptada para web, facilitando a separação de responsabilidades.
 
-### Sistema:
+### Diagramas do Projeto
+*(Adicione as imagens dos diagramas gerados pelos arquivos .plantuml da pasta 'Diagrams')*
 
-- **Horários Disponíveis:** O sistema mostra os horários livres para agendamento, com base na agenda do ateliê.
-- **Histórico de Agendamentos:** O sistema guarda um histórico de todos os serviços que o cliente agendou.
-- **Evitar Conflitos:** O sistema bloqueia horários já agendados para não sobrecarregar a agenda.
-- **Lembretes Automáticos:** O sistema manda lembretes para o cliente um dia antes do agendamento.
-- **Relatórios de Serviços:** O sistema gera relatórios sobre quais serviços são mais procurados.
+#### 1. Diagrama de Banco de Dados (ER)
+O banco de dados foi modelado para garantir integridade e performance.
+*Ref: `Diagrams/BD.plantuml`*
 
-### Para os Clientes:
-
-- **Login:** O usuário pode entrar no sistema usando seu e-mail e senha
-- **Escolha de Serviço:** O cliente poderá agendar o tipo de serviço que deseja, escolhendo o tipo de conserto ou ajuste.
-- **Descrição do Problema:** O cliente pode explicar o que precisa ser feito na peça em um campo de texto.
-- **Cancelamento ou Remarcação:** O cliente pode cancelar ou remarcar um agendamento facilmente.
-
-### Para os Administradores (Donos do Ateliê):
-
-- **Gerenciamento pelo Administrador:** O dono do ateliê pode editar ou desativar contas de usuários.
-- **Cadastro de Serviços:** O dono do ateliê pode cadastrar, editar ou remover os serviços oferecidos.
-- **Definição de Horários:** O dono do ateliê pode definir os horários e dias em que os serviços podem ser agendados.
-- **Visão Geral da Agenda:** O dono pode ver todos os agendamentos do dia ou da semana.
-- **Mensagens Personalizadas:** O dono do ateliê pode enviar mensagens ao cliente sobre o status do serviço.
-- **Histórico de Agendamentos:** O dono pode ver todos os agendamentos passados de um cliente.
+#### 2. Arquitetura C4
+Visão geral dos containers e componentes do sistema.
+*Ref: `Diagrams/C4.1.plantuml`*
 
 ---
 
-## Qualidade e Desempenho do Sistema.
+## Escopo e Funcionalidades
 
-## Desempenho:
+### Para os Clientes
+- [x] **Login/Cadastro**: Acesso seguro com e-mail e senha.
+- [x] **Agendamento**: Visualização de horários livres e marcação de serviços.
+- [x] **Descrição de Serviço**: Campo para detalhar o problema da roupa (ex: "Bainha da calça jeans").
+- [x] **Histórico**: Visualização dos agendamentos passados e futuros.
 
-- O sistema deve carregar os horários disponíveis em até 3 segundos.
-- O sistema deve ser capaz de lidar com pelo menos 20 agendamentos ao mesmo tempo sem ficar lento
+### Para a Administração (Dona do Ateliê)
+- [x] **Gestão de Agenda**: Visão diária/semanal dos compromissos.
+- [x] **Gestão de Serviços**: Cadastrar, editar ou remover tipos de serviços e preços.
+- [x] **Controle de Usuários**: Visualizar e gerenciar clientes cadastrados.
+- [x] **Bloqueio de Horários**: Impedir agendamentos em dias/horários específicos.
 
-## Segurança:
-
-- O sistema precisa de uma forma de verificar a identidade do usuário quando ele acessar.
-- O sistema deve bloquear tentativas de login repetidas para evitar ataques.
-- O sistema deve ser protegido contra falhas de segurança, como a injeção de códigos maliciosos.
-
-## Usabilidade:
-
-- A interface do sistema para o dono do ateliê deve ser fácil de usar e bem desenhada.
-- O sistema deve funcionar bem em celulares, tablets e computadores.
-
-## Disponibilidade:
-
-- O sistema deve estar disponível para uso pelo menos 99% do tempo.
-- O sistema deve fazer backup automático dos dados toda madrugada para garantir a segurança da informação.
-
-  ***
-
-## Como a arquitetura MVP atende os Requisitos Funcionais:
-
-- Permite que Views (interfaces) sejam facilmente alteradas ou adaptadas sem afetar a lógica de negócio.
-- O Presenter gerencia toda a lógica de fluxo: cadastro, agendamento, geração de relatórios, controle de agenda, envio de notificações etc.
-- O Model lida com o acesso e manipulação de dados (usuários, serviços, horários), garantindo a integridade dos dados mesmo com múltiplas ações simultâneas.
-
-  ***
-
-## Como ela atende os Requisitos Não Funcionais:
-
-- Desempenho: separação clara de responsabilidades evita sobrecarga na interface e torna o carregamento mais rápido.
-- Segurança: lógica de segurança fica centralizada no Presenter e Model, tornando a proteção de dados mais confiável.
-- Usabilidade: a View pode ser otimizada para diferentes dispositivos sem interferir no restante do sistema.
+---
+- Homepage
+<img width="1903" height="908" alt="Captura de tela 2025-12-01 190523" src="https://github.com/user-attachments/assets/1230d8ab-05bc-48cb-a47b-94ce5860012f" />
+<img width="1901" height="910" alt="Captura de tela 2025-12-01 190540" src="https://github.com/user-attachments/assets/7d074e4e-7e97-4514-9452-f02913d40eba" />
 
 ---
 
-**Trello:** https://trello.com/b/tXkeg8i1/pac-v-vi
+- Interface de Login/Cadastro
+<img width="1918" height="910" alt="Captura de tela 2025-12-01 190611" src="https://github.com/user-attachments/assets/38c17148-0450-4227-8599-b1299fd710e9" />
+<img width="1915" height="907" alt="Captura de tela 2025-12-01 190625" src="https://github.com/user-attachments/assets/b46d6779-8969-4551-9683-286f544489a2" />
+
+---
+
+- Interface de Agendamento
+<img width="1916" height="912" alt="Captura de tela 2025-12-01 190805" src="https://github.com/user-attachments/assets/252a428e-68ee-4629-889b-b429a7e2cf38" />
+
+---
+
+- Sidebar/Histórico de Agendamento
+<img width="1914" height="909" alt="Captura de tela 2025-12-01 190825" src="https://github.com/user-attachments/assets/6826afd6-9525-40d2-841c-6d79b450d714" />
+
+---
+
+- Interface de Login de ADMIN
+<img width="1917" height="910" alt="Captura de tela 2025-12-01 203704" src="https://github.com/user-attachments/assets/a3605377-02bf-4626-8a45-602079aa3008" />
+
+---
+
+- Dashboard ADMIN - Visão de agendamentos diários/faturamento.
+<img width="1916" height="911" alt="Captura de tela 2025-12-01 190921" src="https://github.com/user-attachments/assets/e2b7c96a-eb36-4c0e-95d3-0619ddc7e5d8" />
+
+---
+
+- Dashboard ADMIN - Visão geral dos agendamentos.
+<img width="1902" height="911" alt="Captura de tela 2025-12-01 190935" src="https://github.com/user-attachments/assets/ea6a2524-56b8-45b9-9d77-10241e7c6856" />
+
+---
+
+- Dashboard ADMIN - Visão do gerenciamento de serviços.
+<img width="1914" height="910" alt="Captura de tela 2025-12-01 190950" src="https://github.com/user-attachments/assets/cecfdbb3-6ded-4a7b-873a-082099f7bae4" />
+
+---
+
+- Dashboard ADMIN - Visão do gerenciamento total de clientes.
+<img width="1900" height="907" alt="Captura de tela 2025-12-01 191003" src="https://github.com/user-attachments/assets/2f1070e1-9d3c-4af2-bc45-9678795ddb5d" />
+
+
+
+
+## Galeria do Sistema
+
+*(Espaço reservado para as evidências de funcionamento do software)*
+
+---
+
+## 📊 Qualidade e Requisitos
+
+* **Desempenho**: Carregamento otimizado via CDN da Vercel (Cloud).
+* **Disponibilidade**: 24/7 com monitoramento de uptime garantido pela plataforma.
+* **Usabilidade**: Interface Mobile-First pensada para uso direto no navegador do celular, sem necessidade de downloads.
+
+---
+
+**Trello do Projeto:** [Acessar Quadro de Tarefas](https://trello.com/b/tXkeg8i1/pac-v-vi)
