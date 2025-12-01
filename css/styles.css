@@ -1261,3 +1261,22 @@ div.appointment-card:first-child {
 #menu-btn:hover {
   background: hsla(340, 60%, 70%, 0.1);
 }
+
+@media (max-width: 768px) {
+  .app-sidebar {
+    width: 85%;
+
+    max-width: 400px;
+
+    right: -100%;
+  }
+
+  .app-sidebar.active {
+    right: 0;
+  }
+
+  .close-sidebar-btn {
+    font-size: 1.8rem;
+    padding: 10px;
+  }
+}
