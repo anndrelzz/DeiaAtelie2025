@@ -93,6 +93,8 @@ Visão geral dos containers e componentes do sistema.
 - [x] **Controle de Usuários**: Visualizar e gerenciar clientes cadastrados.
 - [x] **Bloqueio de Horários**: Impedir agendamentos em dias/horários específicos.
 
+## Galeria do Sistema
+
 ---
 - Homepage
 <img width="1903" height="908" alt="Captura de tela 2025-12-01 190523" src="https://github.com/user-attachments/assets/1230d8ab-05bc-48cb-a47b-94ce5860012f" />
@@ -138,13 +140,6 @@ Visão geral dos containers e componentes do sistema.
 
 - Dashboard ADMIN - Visão do gerenciamento total de clientes.
 <img width="1900" height="907" alt="Captura de tela 2025-12-01 191003" src="https://github.com/user-attachments/assets/2f1070e1-9d3c-4af2-bc45-9678795ddb5d" />
-
-
-
-
-## Galeria do Sistema
-
-*(Espaço reservado para as evidências de funcionamento do software)*
 
 ---
 
