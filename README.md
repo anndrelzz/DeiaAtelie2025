@@ -23,11 +23,13 @@ Implantar um sistema digital que otimize o processo de agendamento de horários 
 ## Tecnologias Utilizadas
 
 - **Frontend**:
+
   - **HTML**: Utilizado para estruturar a interface de usuário.
   - **CSS**: Responsável pela estilização da interface, criando um layout responsivo.
   - **JavaScript**: Usado para a criação de funcionalidades e puxar informações da API.
 
 - **Backend**:
+
   - **Node.js**: Framework para o desenvolvimento da API, lógica de negócios, criação de endpoints e integração com banco de dados.
 
 - **Banco de Dados**:
@@ -94,12 +96,7 @@ O sistema do **Deia Ateliê** tem como objetivo resolver os principais problemas
 - O sistema deve estar disponível para uso pelo menos 99% do tempo.
 - O sistema deve fazer backup automático dos dados toda madrugada para garantir a segurança da informação.
 
-## Integração
-
-- O sistema precisa se conectar ao WhatsApp para permitir que os cliente agendem serviços e interajam com o bot automaticamente.
-- O sistema deve enviar confirmações de agendamento via WhatsApp.
-
-  ---
+  ***
 
 ## Como a arquitetura MVP atende os Requisitos Funcionais:
 
@@ -107,14 +104,13 @@ O sistema do **Deia Ateliê** tem como objetivo resolver os principais problemas
 - O Presenter gerencia toda a lógica de fluxo: cadastro, agendamento, geração de relatórios, controle de agenda, envio de notificações etc.
 - O Model lida com o acesso e manipulação de dados (usuários, serviços, horários), garantindo a integridade dos dados mesmo com múltiplas ações simultâneas.
 
-  ---
+  ***
 
 ## Como ela atende os Requisitos Não Funcionais:
 
 - Desempenho: separação clara de responsabilidades evita sobrecarga na interface e torna o carregamento mais rápido.
 - Segurança: lógica de segurança fica centralizada no Presenter e Model, tornando a proteção de dados mais confiável.
 - Usabilidade: a View pode ser otimizada para diferentes dispositivos sem interferir no restante do sistema.
-- Escalabilidade e integração com APIs (WhatsApp): facilitada por módulos independentes, podendo conectar o Presenter a serviços externos.
 
 ---
 
