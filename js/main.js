@@ -185,13 +185,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         loginForm.reset();
       } catch (error) {
-        console.error("Falha detalhada:", error);
-        let mensagemErro = error.message;
-        if (error.message === "Failed to fetch" || error.message.includes("NetworkError")) {
-          mensagemErro =
-            "Erro de Conexão: O celular não conseguiu alcançar o servidor. Verifique se o endereço da API está correto (não pode ser localhost).";
-        }
-        alert(`Ops! Deu erro:\n${mensagemErro}`);
+        console.error("Falha no login/registro:", error);
+        alert(`Erro: ${error.message}`);
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalBtnText;
