@@ -478,28 +478,22 @@
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // --- ELEMENTOS ---
             const menuBtn = document.getElementById('menu-btn');
             const closeBtn = document.getElementById('close-btn');
             const sidebar = document.getElementById('app-sidebar');
             const overlay = document.getElementById('sidebar-overlay');
 
-            // Elementos internos da Sidebar
             const guestView = document.getElementById('sidebar-guest-view');
             const loggedView = document.getElementById('sidebar-logged-view');
             const sidebarLoginBtn = document.getElementById('sidebar-login-btn');
             const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
             const sidebarUsername = document.getElementById('sidebar-username');
 
-            // Modais
             const loginModal = document.getElementById('login-modal');
 
-            // --- FUNÇÃO QUE DECIDE O QUE MOSTRAR ---
             function updateSidebarState() {
-                // Tenta pegar o token e o usuário do LocalStorage
                 const userToken = localStorage.getItem('token');
 
-                // Tenta ler o objeto 'user'. Se der erro, retorna vazio.
                 let userData = {};
                 try {
                     userData = JSON.parse(localStorage.getItem('user') || '{}');
@@ -507,36 +501,29 @@
                     console.error("Erro ao ler dados do usuário:", e);
                 }
 
-                console.log("Status do Token:", userToken); // Para Debug (aparece no F12)
+                console.log("Status do Token:", userToken);
 
                 if (userToken) {
-                    // --- CENÁRIO: LOGADO ---
                     guestView.style.display = 'none';
                     loggedView.style.display = 'flex';
 
-                    // Atualiza o nome (tenta pegar 'name', 'nome' ou um padrão)
                     const nomeExibir = userData.name || userData.nome || "Cliente VIP";
                     sidebarUsername.textContent = nomeExibir;
 
-                    // Recarrega a lista de agendamentos se a função existir no main.js
                     const containerAgendamentos = document.getElementById('meus-agendamentos-conteudo');
                     if (containerAgendamentos && typeof carregarMeusAgendamentos === 'function') {
                         carregarMeusAgendamentos();
                     } else if (containerAgendamentos && containerAgendamentos.innerHTML.trim() === "") {
-                        // Se a função não existir, tenta ler do HTML antigo se tiver sobrado algo
-                        // Ou deixa a mensagem padrão do backend
                     }
                 } else {
-                    // --- CENÁRIO: DESLOGADO ---
                     guestView.style.display = 'block';
                     loggedView.style.display = 'none';
                     sidebarUsername.textContent = 'Visitante';
                 }
             }
 
-            // --- ABRIR MENU (Agora verifica o login na hora!) ---
             function openSidebar() {
-                updateSidebarState(); // <--- O SEGREDO ESTÁ AQUI
+                updateSidebarState();
                 sidebar.classList.add('active');
                 overlay.classList.add('active');
                 document.body.style.overflow = 'hidden';
@@ -548,9 +535,6 @@
                 document.body.style.overflow = 'auto';
             }
 
-            // --- EVENTOS DE CLIQUE ---
-
-            // Abrir Menu
             if (menuBtn) {
                 menuBtn.addEventListener('click', function (e) {
                     e.preventDefault();
@@ -558,31 +542,25 @@
                 });
             }
 
-            // Fechar Menu
             if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
             if (overlay) overlay.addEventListener('click', closeSidebar);
 
-            // Botão "Entrar" de dentro da Sidebar
             if (sidebarLoginBtn) {
                 sidebarLoginBtn.addEventListener('click', function () {
-                    // Fecha a sidebar para focar no login
                     closeSidebar();
-                    // Abre o modal de login
                     if (loginModal) loginModal.classList.add('active');
                 });
             }
 
-            // Botão "Sair" de dentro da Sidebar
             if (sidebarLogoutBtn) {
                 sidebarLogoutBtn.addEventListener('click', function () {
                     localStorage.removeItem('token');
                     localStorage.removeItem('user');
                     alert('Você saiu da conta.');
-                    window.location.reload(); // Recarrega para limpar tudo
+                    window.location.reload();
                 });
             }
 
-            // Executa uma vez ao carregar a página também
             updateSidebarState();
         });
     </script>

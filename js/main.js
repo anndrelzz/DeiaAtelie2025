@@ -1,14 +1,19 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // --- ELEMENTOS GERAIS ---
   const meusAgSection = document.getElementById("meus-agendamentos");
   const meusAgContainer = document.getElementById("meus-agendamentos-conteudo");
 
+  // Cache para agendamento
   let servicosCache = [];
   let agendaConfigCache = [];
   let horariosDisponiveisCache = [];
   let selectedService = null;
 
+  // --- MODAL DE LOGIN / CADASTRO ---
   const loginModal = document.getElementById("login-modal");
-  const loginBtn = document.getElementById("login-btn");
+  // O loginBtn antigo pode não existir mais no navbar, então tratamos com cuidado
+  const navbarLoginBtn = document.getElementById("login-btn");
+
   const modalClose = document.getElementById("modal-close");
   const modalBackdrop = loginModal?.querySelector(".modal-backdrop");
   const toggleMode = document.getElementById("toggle-mode");
@@ -19,6 +24,14 @@ document.addEventListener("DOMContentLoaded", function () {
   const nameInput = document.getElementById("modal-name");
   const loginForm = document.getElementById("login-form");
 
+  // --- ELEMENTOS DO MENU LATERAL (NOVO) ---
+  const sidebarGuestView = document.getElementById("sidebar-guest-view");
+  const sidebarLoggedView = document.getElementById("sidebar-logged-view");
+  const sidebarUsername = document.getElementById("sidebar-username");
+  const sidebarLoginBtn = document.getElementById("sidebar-login-btn");
+  const sidebarLogoutBtn = document.getElementById("sidebar-logout-btn");
+
+  // --- MODAL DE AGENDAMENTO ---
   const agendamentoModal = document.getElementById("agendamento-modal");
   const agendamentoModalClose = document.getElementById("agendamento-modal-close");
   const agendamentoBackdrop = agendamentoModal?.querySelector(".modal-backdrop");
@@ -27,11 +40,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let isLoginMode = true;
 
+  // Função para limpar HTML e evitar injeção de código
   function escapeHtml(str) {
     if (!str) return "";
     return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
   }
 
+  // --- CARREGAR AGENDAMENTOS ---
   async function carregarHistoricoAgendamentos() {
     if (!meusAgContainer) return;
 
@@ -41,13 +56,13 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    meusAgContainer.innerHTML = "<p>Carregando seus agendamentos...</p>";
+    meusAgContainer.innerHTML = "<p style='text-align:center; padding:10px;'>🔄 Carregando...</p>";
 
     try {
       const itens = await window.API.fetchMyAppointments();
 
       if (!itens || itens.length === 0) {
-        meusAgContainer.innerHTML = "<p>Você ainda não possui agendamentos.</p>";
+        meusAgContainer.innerHTML = "<p style='text-align:center; color:#666;'>Você ainda não possui agendamentos.</p>";
         return;
       }
 
@@ -67,37 +82,42 @@ document.addEventListener("DOMContentLoaded", function () {
             minute: "2-digit",
           });
 
-          const horaFimStr = fim.toLocaleTimeString("pt-BR", {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-
           const servicoNome = a.servico_nome || "Serviço";
           const status = (a.status || "pendente").toLowerCase();
-          const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+
+          // Tratamento visual para cards dentro da sidebar
+          let statusColor = "#f0ad4e"; // Amarelo (pendente)
+          if (status === "confirmado") statusColor = "#5cb85c"; // Verde
+          if (status === "cancelado") statusColor = "#d9534f"; // Vermelho
 
           return `
-                    <div class="appointment-item appointment-status-${status}">
-                        <div class="appointment-header">
-                            <strong>${escapeHtml(servicoNome)}</strong>
-                            <span class="appointment-badge">${escapeHtml(statusLabel)}</span>
-                        </div>
-                        <div class="appointment-body">
-                            <span>${dataStr} — ${horaInicioStr} às ${horaFimStr}</span>
-                            ${a.observacoes ? `<p class="appointment-notes">Obs: ${escapeHtml(a.observacoes)}</p>` : ""}
-                        </div>
-                    </div>
-                `;
+            <div class="appointment-card" style="border-left: 4px solid ${statusColor}; background: #fff; padding: 10px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                    <strong style="color:#333; font-size:0.95rem;">${escapeHtml(servicoNome)}</strong>
+                    <span style="font-size:0.75rem; background:${statusColor}; color:white; padding:2px 6px; border-radius:4px;">${status}</span>
+                </div>
+                <div style="font-size:0.85rem; color:#555;">
+                    📅 ${dataStr}<br>
+                    ⏰ ${horaInicioStr}
+                </div>
+                ${
+                  a.observacoes
+                    ? `<div style="font-size:0.8rem; color:#888; margin-top:4px; font-style:italic;">"${escapeHtml(a.observacoes)}"</div>`
+                    : ""
+                }
+            </div>
+          `;
         })
         .join("");
 
       meusAgContainer.innerHTML = html;
     } catch (error) {
       console.error("Erro ao carregar histórico de agendamentos:", error);
-      meusAgContainer.innerHTML = "<p>Erro ao carregar seus agendamentos. Tente novamente mais tarde.</p>";
+      meusAgContainer.innerHTML = "<p>Erro ao carregar. Tente novamente.</p>";
     }
   }
 
+  // --- CONTROLE DE MODAIS ---
   function openModal(modal) {
     if (modal) {
       modal.classList.add("active");
@@ -111,11 +131,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function localToISO(dateStr, timeStr) {
-    if (!dateStr || !timeStr) return null;
-    return `${dateStr}T${timeStr}:00.000Z`;
+  function openLoginModal() {
+    openModal(loginModal);
   }
 
+  // --- LÓGICA DE LOGIN ---
   function toggleAuthMode() {
     isLoginMode = !isLoginMode;
     if (isLoginMode) {
@@ -150,13 +170,14 @@ document.addEventListener("DOMContentLoaded", function () {
       try {
         if (isLoginMode) {
           await window.API.loginUser({email, senha});
-          alert("Login realizado com sucesso!");
+          // alert("Login realizado com sucesso!"); // Removido para ser mais fluido
         } else {
           await window.API.registerUser({nome, email, senha});
-          alert("Cadastro realizado com sucesso! Você já está logado.");
+          alert("Cadastro realizado! Bem-vindo(a).");
         }
+
         closeModal(loginModal);
-        checkLoginStatus();
+        checkLoginStatus(); // Atualiza a interface
         loginForm.reset();
       } catch (error) {
         console.error("Falha no login/registro:", error);
@@ -168,44 +189,75 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // --- GERENCIAMENTO DE ESTADO (LOGIN/LOGOUT) ---
   function checkLoginStatus() {
     const user = window.API.getUser();
+
     if (user) {
-      loginBtn.textContent = "Sair";
-      loginBtn.removeEventListener("click", openLoginModal);
-      loginBtn.addEventListener("click", handleLogout);
+      // --- USUÁRIO LOGADO ---
 
-      if (btnAgendarHero) {
-        btnAgendarHero.removeEventListener("click", openLoginModal);
-        btnAgendarHero.addEventListener("click", openAgendamentoModal);
+      // 1. Atualiza Menu Lateral
+      if (sidebarGuestView) sidebarGuestView.style.display = "none";
+      if (sidebarLoggedView) sidebarLoggedView.style.display = "flex"; // ou block
+
+      // 2. Define o nome do usuário
+      if (sidebarUsername) {
+        sidebarUsername.textContent = user.name || user.nome || "Cliente VIP";
       }
 
-      carregarHistoricoAgendamentos(); // <- AQUI
+      // 3. Botão Logout do Menu Lateral
+      if (sidebarLogoutBtn) {
+        // Remove listener antigo para não duplicar
+        sidebarLogoutBtn.replaceWith(sidebarLogoutBtn.cloneNode(true));
+        // Pega a nova referência após o clone
+        const newLogoutBtn = document.getElementById("sidebar-logout-btn");
+        newLogoutBtn.addEventListener("click", handleLogout);
+      }
+
+      // 4. Botão Principal da Home (Hero) -> Abre modal de agendamento
+      if (btnAgendarHero) {
+        btnAgendarHero.onclick = openAgendamentoModal; // Sobrescreve evento anterior
+      }
+
+      // 5. Carrega os agendamentos na sidebar
+      carregarHistoricoAgendamentos();
     } else {
-      loginBtn.textContent = "Entrar";
-      loginBtn.removeEventListener("click", handleLogout);
-      loginBtn.addEventListener("click", openLoginModal);
+      // --- USUÁRIO DESLOGADO ---
 
-      if (btnAgendarHero) {
-        btnAgendarHero.removeEventListener("click", openAgendamentoModal);
-        btnAgendarHero.addEventListener("click", openLoginModal);
+      // 1. Atualiza Menu Lateral
+      if (sidebarGuestView) sidebarGuestView.style.display = "block"; // ou flex
+      if (sidebarLoggedView) sidebarLoggedView.style.display = "none";
+
+      // 2. Botão Login do Menu Lateral
+      if (sidebarLoginBtn) {
+        sidebarLoginBtn.onclick = openLoginModal;
       }
 
+      // 3. Botão Principal da Home (Hero) -> Abre modal de login
+      if (btnAgendarHero) {
+        btnAgendarHero.onclick = openLoginModal;
+      }
+
+      // 4. Limpa lista de agendamentos (segurança visual)
       if (meusAgContainer) {
-        meusAgContainer.innerHTML = "<p>Faça login para visualizar seus agendamentos.</p>";
+        meusAgContainer.innerHTML = "<p style='text-align:center; padding:10px; color:#777;'>Faça login para ver.</p>";
       }
     }
-  }
-
-  function openLoginModal() {
-    openModal(loginModal);
   }
 
   function handleLogout() {
-    if (confirm("Tem a certeza que deseja sair?")) {
+    if (confirm("Tem certeza que deseja sair?")) {
       window.API.logout();
       checkLoginStatus();
+      alert("Você saiu da conta.");
+      window.location.reload(); // Recarrega para limpar estados
     }
+  }
+
+  // --- LÓGICA DE AGENDAMENTO ---
+  function localToISO(dateStr, timeStr) {
+    if (!dateStr || !timeStr) return null;
+    return `${dateStr}T${timeStr}:00.000Z`;
   }
 
   async function openAgendamentoModal() {
@@ -214,7 +266,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const selectServico = document.getElementById("ag-servico");
     selectServico.disabled = true;
-    selectServico.innerHTML = '<option value="">A carregar serviços...</option>';
+    selectServico.innerHTML = '<option value="">Carregando serviços...</option>';
 
     openModal(agendamentoModal);
 
@@ -234,7 +286,7 @@ document.addEventListener("DOMContentLoaded", function () {
       selectServico.disabled = false;
     } catch (error) {
       console.error("Erro ao carregar dados do modal:", error);
-      alert("Erro ao carregar dados para agendamento. Tente novamente.");
+      alert("Erro ao carregar dados para agendamento. Verifique sua conexão.");
       closeModal(agendamentoModal);
     }
   }
@@ -252,9 +304,13 @@ document.addEventListener("DOMContentLoaded", function () {
     selectedService = servicosCache.find((s) => s.id == servicoId);
     if (!selectedService) return;
 
-    const diaDaSemana = new Date(`${dataInput}T12:00:00Z`).getUTCDay();
-    const duracaoServico = selectedService.duracao_estimada_minutos;
+    // Ajuste de fuso horário simples (considerando que o input date é local)
+    // O dia da semana deve ser pego corretamente.
+    const dateParts = dataInput.split("-"); // YYYY-MM-DD
+    const localDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+    const diaDaSemana = localDate.getDay(); // 0 = Domingo, 1 = Segunda...
 
+    const duracaoServico = selectedService.duracao_estimada_minutos;
     const blocosDoDia = agendaConfigCache.filter((b) => b.dia_da_semana === diaDaSemana);
 
     if (blocosDoDia.length === 0) {
@@ -280,7 +336,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     if (horariosDisponiveisCache.length === 0) {
-      container.innerHTML = "<p>Não há horários disponíveis neste dia (talvez a duração do serviço seja muito longa).</p>";
+      container.innerHTML = "<p>Sem horários para a duração deste serviço.</p>";
       return;
     }
 
@@ -318,24 +374,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const horaStr = horaBtn.dataset.hora;
     const inicioISO = localToISO(dataStr, horaStr);
+
+    // Cálculo do fim
     const duracao = selectedService.duracao_estimada_minutos;
-    const fimISO = new Date(new Date(inicioISO).getTime() + duracao * 60000).toISOString();
+    const dataInicioObj = new Date(inicioISO); // Nota: o backend deve tratar o fuso
+    const fimISO = new Date(dataInicioObj.getTime() + duracao * 60000).toISOString();
 
     const submitBtn = agendamentoForm.querySelector('button[type="submit"]');
     const originalBtnText = submitBtn.textContent;
     submitBtn.disabled = true;
-    submitBtn.textContent = "A agendar...";
+    submitBtn.textContent = "Agendando...";
 
     try {
       await window.API.createAppointment({
         id_servico: parseInt(servicoId),
-        inicioISO: inicioISO,
+        inicioISO: inicioISO, // Envie como string ISO
         fimISO: fimISO,
         observacoes: observacoes || null,
       });
 
       alert("Agendamento realizado com sucesso!");
       closeModal(agendamentoModal);
+
+      // Atualiza a lista na sidebar se estiver aberta
+      carregarHistoricoAgendamentos();
     } catch (error) {
       console.error("Erro ao criar agendamento:", error);
       alert(`Erro ao agendar: ${error.message}`);
@@ -345,12 +407,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  if (loginBtn) loginBtn.addEventListener("click", openLoginModal);
+  // --- EVENT LISTENERS GERAIS ---
+
+  // Login Antigo (se ainda existir, por segurança)
+  if (navbarLoginBtn) navbarLoginBtn.addEventListener("click", openLoginModal);
+
+  // Modais Login
   if (modalClose) modalClose.addEventListener("click", () => closeModal(loginModal));
   if (modalBackdrop) modalBackdrop.addEventListener("click", () => closeModal(loginModal));
   if (toggleMode) toggleMode.addEventListener("click", toggleAuthMode);
 
-  if (btnAgendarHero) btnAgendarHero.addEventListener("click", openLoginModal);
+  // Modais Agendamento
   if (agendamentoModalClose) agendamentoModalClose.addEventListener("click", () => closeModal(agendamentoModal));
   if (agendamentoBackdrop) agendamentoBackdrop.addEventListener("click", () => closeModal(agendamentoModal));
 
@@ -360,44 +427,23 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("ag-data").addEventListener("change", renderHorariosDisponiveis);
   }
 
+  // Scroll suave para links
   document.querySelectorAll('a[href^="#"]').forEach((link) => {
     link.addEventListener("click", function (e) {
       e.preventDefault();
       const targetId = this.getAttribute("href").substring(1);
       const targetElement = document.getElementById(targetId);
       if (targetElement) {
+        // Se for um modal ou algo que não é seção, ignora
+        if (!targetElement.classList.contains("section") && targetElement.tagName !== "SECTION") return;
+
         const offsetTop = targetElement.offsetTop - 64;
         window.scrollTo({top: offsetTop, behavior: "smooth"});
       }
     });
   });
 
-  function updateActiveNavLink() {
-    const sections = document.querySelectorAll("section[id]");
-    const scrollPos = window.scrollY + 100;
-    sections.forEach((section) => {
-      const sectionTop = section.offsetTop;
-      const sectionHeight = section.offsetHeight;
-      const sectionId = section.getAttribute("id");
-      const navLink = document.querySelector(`a[href="#${sectionId}"]`);
-      if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
-        document.querySelectorAll(".nav-link").forEach((link) => link.classList.remove("active"));
-        if (navLink) navLink.classList.add("active");
-      }
-    });
-  }
-
-  let ticking = false;
-  window.addEventListener("scroll", function () {
-    if (!ticking) {
-      requestAnimationFrame(function () {
-        updateActiveNavLink();
-        ticking = false;
-      });
-      ticking = true;
-    }
-  });
-
+  // Animações de Scroll
   function initScrollAnimations() {
     const animatedElements = document.querySelectorAll(".feature-card, .about-content, .services-card, .contact-info, .contact-form-card");
     const observer = new IntersectionObserver(
@@ -411,6 +457,7 @@ document.addEventListener("DOMContentLoaded", function () {
     animatedElements.forEach((el) => observer.observe(el));
   }
 
+  // INICIALIZAÇÃO
   checkLoginStatus();
   initScrollAnimations();
 });
