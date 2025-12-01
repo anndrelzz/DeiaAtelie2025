@@ -2,11 +2,13 @@ let currentServices = [];
 let currentClients = [];
 let currentAppointments = [];
 
+// Formatações
 function formatCurrency(value) {
     const numValue = Number(value);
     if (isNaN(numValue)) return 'R$ --,--';
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(numValue);
 }
+
 function formatDate(isoString) {
     if (!isoString) return 'N/A';
     try {
@@ -15,6 +17,7 @@ function formatDate(isoString) {
         return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' }); 
     } catch { return 'Erro Data'; }
 }
+
 function formatTime(isoString) {
      if (!isoString) return 'N/A';
      try {
@@ -23,6 +26,7 @@ function formatTime(isoString) {
         return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' }); 
     } catch { return 'Erro Hora'; }
 }
+
 function getStatusBadge(status) {
     const statusMap = {
         'pendente': { class: 'status-pendente', text: 'Pendente' },
@@ -33,18 +37,23 @@ function getStatusBadge(status) {
     const statusInfo = statusMap[status] || { class: '', text: status };
     return `<span class="status-badge ${statusInfo.class}">${statusInfo.text}</span>`;
 }
+
+// Helpers de Dados
 function getClientName(clientId) {
     const client = currentClients.find(c => c.id == clientId);
     return client ? client.nome : `ID ${clientId} Desconhecido`;
 }
+
 function getServiceName(serviceId) {
     const service = currentServices.find(s => s.id == serviceId);
     return service ? service.nome : `ID ${serviceId} Desconhecido`;
 }
+
 function getServicePrice(serviceId) {
     const service = currentServices.find(s => s.id == serviceId);
     return service ? Number(service.preco) : 0;
 }
+
 function isoToLocalDate(isoString) {
     if (!isoString) return { date: '', time: '' };
     try {
@@ -59,11 +68,13 @@ function isoToLocalDate(isoString) {
         return { date: '', time: '' };
     }
 }
+
 function localToISO(dateStr, timeStr) {
     if (!dateStr || !timeStr) return null;
     return `${dateStr}T${timeStr}:00.000Z`;
 }
 
+// UI Helpers
 function showLoading() { document.getElementById('loadingOverlay')?.classList.remove('d-none'); }
 function hideLoading() { document.getElementById('loadingOverlay')?.classList.add('d-none'); }
 function showToast(message, type = 'info') { 
@@ -80,6 +91,7 @@ function openModal(modalId) {
         if (overlay) overlay.classList.add('active');
     }
 }
+
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     const overlay = document.getElementById('overlay');
@@ -90,13 +102,41 @@ function closeModal(modalId) {
     }
 }
 
+// --- Lógica de Filtro e Pesquisa (NOVO) ---
+function filterAppointments() {
+    const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
+    const searchTerm = document.getElementById('appointmentSearch').value.toLowerCase();
+
+    // Filtra a lista original 'currentAppointments'
+    let filtered = currentAppointments.filter(app => {
+        // 1. Filtro de Status
+        const matchesStatus = statusFilter === '' || (app.status && app.status.toLowerCase() === statusFilter);
+
+        // 2. Filtro de Busca (Nome cliente, Nome serviço ou ID)
+        const clientName = (app.usuario_nome || getClientName(app.id_usuario)).toLowerCase();
+        const serviceName = (app.servico_nome || getServiceName(app.id_servico)).toLowerCase();
+        const matchesSearch = searchTerm === '' || 
+                              clientName.includes(searchTerm) || 
+                              serviceName.includes(searchTerm) ||
+                              app.id.toString().includes(searchTerm);
+
+        return matchesStatus && matchesSearch;
+    });
+
+    // 3. Ordenação: Mais recentes primeiro (Organiza a "bagunça")
+    filtered.sort((a, b) => new Date(b.data_hora_inicio) - new Date(a.data_hora_inicio));
+
+    // Renderiza a tabela com os dados filtrados
+    renderAppointmentsTable(filtered);
+}
+
+// --- Carregamento de Dados ---
+
 async function loadServices() {
-    console.log("A carregar serviços da API...");
     showLoading();
     try {
         const services = await window.API.adminFetchServices();
         currentServices = services;
-        console.log("Serviços carregados:", currentServices);
         renderServicesGrid();
     } catch (error) {
         console.error("Erro ao carregar serviços:", error);
@@ -107,13 +147,11 @@ async function loadServices() {
 }
 
 async function loadClients() {
-    console.log("A carregar clientes da API...");
     showLoading();
     try {
         const clients = await window.API.adminFetchClients();
         currentClients = clients;
-        console.log("Clientes carregados:", currentClients);
-        renderClientsTable(); // <-- CORREÇÃO
+        renderClientsTable();
     } catch (error) {
         console.error("Erro ao carregar clientes:", error);
         showToast(`Erro ao carregar clientes: ${error.message}`, 'error');
@@ -123,13 +161,13 @@ async function loadClients() {
 }
 
 async function loadAppointments() {
-    console.log("A carregar agendamentos da API...");
     showLoading();
     try {
         const appointments = await window.API.adminFetchAppointments();
         currentAppointments = appointments;
         console.log("Agendamentos carregados:", currentAppointments);
-        renderAppointmentsTable();
+        // Aplica o filtro inicial (que ordena e mostra tudo se os inputs estiverem vazios)
+        filterAppointments(); 
     } catch (error) {
         console.error("Erro ao carregar agendamentos:", error);
         showToast(`Erro ao carregar agendamentos: ${error.message}`, 'error');
@@ -138,44 +176,22 @@ async function loadAppointments() {
     }
 }
 
-async function updateClientOptions(selectId = 'appointmentClient', selectedId = null) {
-    const select = document.getElementById(selectId);
-    if (!select) return;
-    select.innerHTML = '<option value="">Selecione um cliente</option>';
-    currentClients.forEach(client => {
-        const option = document.createElement('option');
-        option.value = client.id; 
-        option.textContent = client.nome;
-        if (client.id == selectedId) option.selected = true;
-        select.appendChild(option);
-    });
-}
-async function updateServiceOptions(selectId = 'appointmentService', selectedId = null) {
-    const select = document.getElementById(selectId);
-     if (!select) return;
-    select.innerHTML = '<option value="">Selecione um serviço</option>';
-    currentServices.forEach(service => {
-        if(service.ativo) {
-            const option = document.createElement('option');
-            option.value = service.id; 
-            option.textContent = `${service.nome} - ${formatCurrency(service.preco)}`;
-            if (service.id == selectedId) option.selected = true;
-            select.appendChild(option);
-        }
-    });
-}
+// --- Renderização ---
 
-function renderAppointmentsTable() {
+function renderAppointmentsTable(appointmentsToRender = null) {
     const tbody = document.getElementById('appointmentsTable');
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    if (!currentAppointments || currentAppointments.length === 0) {
+    // Usa a lista filtrada se fornecida, senão usa a lista completa
+    const data = appointmentsToRender || currentAppointments;
+
+    if (!data || data.length === 0) {
          tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Nenhum agendamento encontrado.</td></tr>';
          return;
     }
 
-    currentAppointments.forEach(app => {
+    data.forEach(app => {
         const row = document.createElement('tr');
          row.innerHTML = `
             <td data-label="ID">${app.id}</td>
@@ -209,11 +225,8 @@ function renderServicesGrid() {
     currentServices.forEach(service => {
         const card = document.createElement('div');
         card.className = 'service-card';
-        
         const isActive = service.ativo;
-        if (!isActive) {
-            card.style.opacity = '0.6';
-        }
+        if (!isActive) card.style.opacity = '0.6';
 
         card.innerHTML = `
             <div class="service-header">
@@ -264,6 +277,36 @@ function renderClientsTable() {
             </td>
         `;
         tbody.appendChild(row);
+    });
+}
+
+// --- Modais e Ações ---
+
+async function updateClientOptions(selectId = 'appointmentClient', selectedId = null) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    select.innerHTML = '<option value="">Selecione um cliente</option>';
+    currentClients.forEach(client => {
+        const option = document.createElement('option');
+        option.value = client.id; 
+        option.textContent = client.nome;
+        if (client.id == selectedId) option.selected = true;
+        select.appendChild(option);
+    });
+}
+
+async function updateServiceOptions(selectId = 'appointmentService', selectedId = null) {
+    const select = document.getElementById(selectId);
+     if (!select) return;
+    select.innerHTML = '<option value="">Selecione um serviço</option>';
+    currentServices.forEach(service => {
+        if(service.ativo) {
+            const option = document.createElement('option');
+            option.value = service.id; 
+            option.textContent = `${service.nome} - ${formatCurrency(service.preco)}`;
+            if (service.id == selectedId) option.selected = true;
+            select.appendChild(option);
+        }
     });
 }
 
@@ -331,7 +374,7 @@ async function saveAppointment() {
         }
         
         closeModal('appointmentModal');
-        await loadAppointments();
+        await loadAppointments(); // Isso recarregará e aplicará o filtro/ordenação
         await updateDashboard();
         
     } catch (error) {
@@ -513,15 +556,14 @@ async function deleteClient(id) {
 }
 
 async function updateDashboard() {
-    console.log("A atualizar Dashboard...");
-    
     showLoading();
+    // Garante que temos dados
     if (currentAppointments.length === 0 || currentClients.length === 0 || currentServices.length === 0) {
         await loadServices();
         await loadClients();
         await loadAppointments();
     } else {
-        renderAppointmentsTable();
+        filterAppointments(); // Usa o render filtrado
         renderClientsTable();
         hideLoading();
     }
@@ -568,7 +610,6 @@ async function updateDashboard() {
 }
 
 function showSection(sectionId) {
-    console.log("A mostrar secção:", sectionId);
     document.querySelectorAll('.content-section').forEach(section => { section.classList.remove('active'); });
     const targetSection = document.getElementById(sectionId);
     if(targetSection) { targetSection.classList.add('active'); }
@@ -583,7 +624,6 @@ function showSection(sectionId) {
     };
     document.getElementById('pageTitle').textContent = titles[sectionId] || 'Painel';
 
-
     switch(sectionId) {
         case 'appointments': loadAppointments(); break;
         case 'services': loadServices(); break;
@@ -592,8 +632,9 @@ function showSection(sectionId) {
     }
 }
 
+// Inicialização
 async function init() {
-    console.log("A inicializar painel admin (MODO REAL)...");
+    console.log("A inicializar painel admin...");
     
     const token = window.API.getToken();
     const user = window.API.getUser();
@@ -612,8 +653,7 @@ async function init() {
     await loadAppointments();
     hideLoading();
 
-    console.log("A configurar Event Listeners...");
-
+    // Event Listeners Gerais
     document.querySelectorAll('.nav-link[data-section]').forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
@@ -640,11 +680,15 @@ async function init() {
          e.preventDefault();
          if (confirm('Tem certeza que deseja sair?')) {
              window.API.logout();
-             console.log("Logout confirmado. A redirecionar para admin.html...");
              window.location.href = 'admin.html'; 
          }
      });
 
+    // Event Listeners de Filtro (CORREÇÃO ADICIONADA AQUI)
+    document.getElementById('statusFilter')?.addEventListener('change', filterAppointments);
+    document.getElementById('appointmentSearch')?.addEventListener('input', filterAppointments);
+
+    // Event Listeners de Modais
     document.getElementById('newAppointmentBtn')?.addEventListener('click', async () => {
         document.getElementById('appointmentModalTitle').textContent = 'Novo Agendamento';
         document.getElementById('appointmentForm')?.reset();
@@ -699,7 +743,6 @@ async function init() {
     });
 
     showSection('dashboard');
-    console.log("Painel admin inicializado e pronto.");
 }
 
 if (document.readyState === 'loading') {
