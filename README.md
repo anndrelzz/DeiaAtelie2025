@@ -67,15 +67,20 @@ Implantar um sistema digital que otimize o processo de agendamento de horários 
 O projeto segue a arquitetura **MVP (Model-View-Presenter)** adaptada para web, facilitando a separação de responsabilidades.
 
 ### Diagramas do Projeto
-*(Adicione as imagens dos diagramas gerados pelos arquivos .plantuml da pasta 'Diagrams')*
 
 #### 1. Diagrama de Banco de Dados (ER)
-O banco de dados foi modelado para garantir integridade e performance.
-*Ref: `Diagrams/BD.plantuml`*
+- O banco de dados foi modelado para garantir integridade e performance.
+<img width="782" height="468" alt="Captura de tela 2025-12-01 210130" src="https://github.com/user-attachments/assets/775079ed-c8c8-451b-b446-31eb939792cf" />
+
+
+
 
 #### 2. Arquitetura C4
 Visão geral dos containers e componentes do sistema.
-*Ref: `Diagrams/C4.1.plantuml`*
+
+<img width="388" height="413" alt="image" src="https://github.com/user-attachments/assets/db3ac98f-acbf-4c7f-ab58-ffc99890ac6d" />
+<img width="418" height="795" alt="image" src="https://github.com/user-attachments/assets/c4de24a9-5f40-4c2d-8bfd-4e1326cdd236" />
+<img width="796" height="482" alt="image" src="https://github.com/user-attachments/assets/851a1e12-bdf8-44e6-95d5-010e75b6aac7" />
 
 ---
 
